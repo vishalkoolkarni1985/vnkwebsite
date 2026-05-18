@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CricketVault — Members' Document Library</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-900: #0b1829;
+      --navy-800: #112240;
+      --navy-700: #1a3358;
+      --navy-600: #1e4080;
+      --navy-400: #2558a8;
+      --navy-200: #7aa4d8;
+      --navy-100: #b8cfe8;
+      --navy-50: #eaf0f8;
+      --gold-500: #c8a84b;
+      --gold-400: #d4b96a;
+      --gold-200: #ede0b8;
+      --gold-100: #f7f1de;
+      --cream: #f8fafc;
+      --text-dark: #1a1c20;
+      --text-mid: #40454f;
+      --text-muted: #7a7f8a;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f4f5f7;
+      --border: rgba(0,0,0,0.12);
+      --radius: 8px;
+      --radius-lg: 14px;
+    }
+
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--text-dark); }
+
+    .portal { max-width: 680px; margin: 0 auto; padding: 0 0 2rem; }
+
+    .header {
+      background: var(--navy-900);
+      padding: 1.5rem 1.5rem 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 18px, rgba(255,255,255,0.02) 18px, rgba(255,255,255,0.02) 19px);
+    }
+    .header-inner { position: relative; z-index: 1; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gold-500);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--navy-900);
+      font-family: 'Playfair Display', serif;
+    }
+    .logo-text { color: #fff; }
+    .logo-text h1 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; letter-spacing: 0.03em; }
+    .logo-text p { font-size: 11px; color: var(--navy-200); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1px; }
+
+    .member-badge {
+      background: rgba(200,168,75,0.15);
+      border: 0.5px solid var(--gold-500);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px; color: var(--gold-400);
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .header-stats {
+      display: flex; gap: 1.5rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid rgba(255,255,255,0.1);
+    }
+    .stat-val { font-size: 20px; font-weight: 500; color: var(--gold-400); font-family: 'Playfair Display', serif; }
+    .stat-label { font-size: 11px; color: var(--navy-200); margin-top: 1px; letter-spacing: 0.04em; }
+
+    .nav-tabs {
+      display: flex;
+      background: var(--navy-800);
+      border-bottom: 1px solid var(--navy-700);
+      overflow-x: auto;
+    }
+    .nav-tab {
+      padding: 12px 18px;
+      font-size: 13px; color: var(--navy-200);
+      cursor: pointer; border: none; background: none;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .nav-tab.active { color: var(--gold-400); border-bottom-color: var(--gold-500); }
+    .nav-tab:hover:not(.active) { color: #fff; }
+
+    .content { padding: 1.25rem 1.25rem 0; }
+
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--text-dark); }
+    .see-all { font-size: 12px; color: var(--navy-600); cursor: pointer; text-decoration: none; letter-spacing: 0.02em; }
+    .see-all:hover { color: var(--navy-400); }
+
+    .search-wrap { position: relative; margin-bottom: 1.25rem; }
+    .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-muted); pointer-events: none; }
+    .search-input {
+      width: 100%; padding: 10px 12px 10px 36px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px; color: var(--text-dark);
+      background: var(--bg-primary);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .search-input:focus { outline: none; border-color: var(--navy-400); }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-pill {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 12px; cursor: pointer; border: 0.5px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-mid);
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .filter-pill.active { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+    .filter-pill:hover:not(.active) { border-color: var(--navy-600); color: var(--navy-700); }
+
+    .doc-grid { display: flex; flex-direction: column; gap: 10px; }
+    .doc-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.1rem;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .doc-card:hover { border-color: var(--navy-400); background: var(--navy-50); }
+
+    .doc-icon {
+      width: 42px; height: 42px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; flex-shrink: 0;
+    }
+    .doc-icon.pdf { background: #fbeaea; color: #a33; }
+    .doc-icon.xls { background: #eaf0fb; color: #1a3d8a; }
+    .doc-icon.ppt { background: #fff1e6; color: #c45a0e; }
+    .doc-icon.zip { background: #ede8fb; color: #5a3baa; }
+
+    .doc-info { flex: 1; min-width: 0; }
+    .doc-name { font-size: 14px; font-weight: 500; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-meta { display: flex; gap: 10px; margin-top: 3px; }
+    .doc-cat {
+      font-size: 11px; padding: 1px 7px; border-radius: 10px;
+      background: var(--navy-50); color: var(--navy-700);
+      border: 0.5px solid var(--navy-100);
+    }
+    .doc-size { font-size: 11px; color: var(--text-muted); }
+    .doc-date { font-size: 11px; color: var(--text-muted); }
+
+    .doc-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-dl {
+      padding: 7px 14px;
+      background: var(--navy-900);
+      color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-dl:hover { background: var(--navy-700); }
+    .btn-preview {
+      padding: 7px 10px;
+      background: none;
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px; cursor: pointer; color: var(--text-muted);
+      transition: border-color 0.15s, color 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-preview:hover { border-color: var(--navy-400); color: var(--navy-700); }
+
+    .featured-banner {
+      background: var(--navy-900);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.25rem;
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 1.25rem;
+      position: relative; overflow: hidden;
+    }
+    .featured-banner::after {
+      content: '🏏';
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 36px; opacity: 0.15;
+    }
+    .featured-banner-icon { font-size: 22px; }
+    .featured-banner-text h3 { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; color: var(--gold-400); }
+    .featured-banner-text p { font-size: 12px; color: var(--navy-200); margin-top: 2px; }
+    .btn-banner {
+      margin-left: auto; padding: 7px 16px;
+      border: 0.5px solid var(--gold-500); border-radius: 6px;
+      background: none; color: var(--gold-400);
+      font-size: 12px; cursor: pointer; flex-shrink: 0;
+      z-index: 1; position: relative;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-banner:hover { background: rgba(200,168,75,0.12); }
+
+    .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+    .tier-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      text-align: center;
+    }
+    .tier-card.active-tier { border: 1.5px solid var(--navy-600); }
+    .tier-icon { font-size: 22px; margin-bottom: 6px; }
+    .tier-name { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600; color: var(--text-dark); }
+    .tier-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+    .tier-badge { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 10px; font-size: 10px; background: var(--navy-50); color: var(--navy-700); border: 0.5px solid var(--navy-100); }
+    .tier-card.active-tier .tier-badge { background: var(--navy-900); color: var(--gold-400); border-color: var(--navy-800); }
+
+    .activity-list { display: flex; flex-direction: column; gap: 1px; }
+    .activity-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .activity-dot.dl { background: var(--navy-400); }
+    .activity-dot.view { background: var(--gold-500); }
+    .activity-text { font-size: 13px; color: var(--text-mid); flex: 1; }
+    .activity-text b { font-weight: 500; color: var(--text-dark); }
+    .activity-time { font-size: 11px; color: var(--text-muted); }
+
+    .panel { display: none; }
+    .panel.visible { display: block; }
+
+    .ai-result {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 13px; color: var(--text-mid);
+      margin-bottom: 1rem; line-height: 1.6;
+      display: none;
+    }
+    .ai-result.visible { display: block; }
+    .ai-result strong { color: var(--text-dark); }
+  </style>
+</head>
+<body>
+
+<div class="portal">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="logo-area">
+          <div class="logo-mark">C</div>
+          <div class="logo-text">
+            <h1>CricketVault</h1>
+            <p>Members' Document Library</p>
+          </div>
+        </div>
+        <div class="member-badge">
+          <i class="ti ti-shield-check"></i>
+          Gold Member
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat">
+          <div class="stat-val">247</div>
+          <div class="stat-label">Documents</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">18</div>
+          <div class="stat-label">New this month</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">34</div>
+          <div class="stat-label">Downloaded</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('library', this)"><i class="ti ti-library"></i> Library</button>
+    <button class="nav-tab" onclick="switchTab('membership', this)"><i class="ti ti-id-badge"></i> Membership</button>
+    <button class="nav-tab" onclick="switchTab('activity', this)"><i class="ti ti-activity"></i> Activity</button>
+  </div>
+
+  <div class="content">
+
+    <!-- LIBRARY PANEL -->
+    <div class="panel visible" id="panel-library">
+      <div style="height: 1.25rem;"></div>
+      <div class="featured-banner">
+        <span class="featured-banner-icon">📋</span>
+        <div class="featured-banner-text">
+          <h3>ICC Playing Conditions 2024</h3>
+          <p>Updated rules — all formats included</p>
+        </div>
+        <button class="btn-banner">
+          <i class="ti ti-download"></i> Get it
+        </button>
+      </div>
+
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input class="search-input" type="text" id="searchInput" placeholder="Search documents, reports, rulebooks…" oninput="handleSearch(this.value)" />
+      </div>
+      <div class="ai-result" id="aiResult"></div>
+
+      <div class="filter-row">
+        <button class="filter-pill active" onclick="setFilter('All', this)">All</button>
+        <button class="filter-pill" onclick="setFilter('Rulebooks', this)">Rulebooks</button>
+        <button class="filter-pill" onclick="setFilter('Analytics', this)">Analytics</button>
+        <button class="filter-pill" onclick="setFilter('Training', this)">Training</button>
+        <button class="filter-pill" onclick="setFilter('Finance', this)">Finance</button>
+        <button class="filter-pill" onclick="setFilter('History', this)">History</button>
+      </div>
+
+      <div class="section-head">
+        <span class="section-title" id="docSectionTitle">All Documents</span>
+        <a class="see-all" href="#">Sort: Recent ↓</a>
+      </div>
+      <div class="doc-grid" id="docGrid"></div>
+    </div>
+
+    <!-- MEMBERSHIP PANEL -->
+    <div class="panel" id="panel-membership">
+      <div style="height: 1.25rem;"></div>
+      <div class="section-head"><span class="section-title">Your Membership</span></div>
+      <div class="tier-grid">
+        <div class="tier-card">
+          <div class="tier-icon">🥉</div>
+          <div class="tier-name">Bronze</div>
+          <div class="tier-desc">50 docs/mo · Standard library</div>
+          <div class="tier-badge">Basic</div>
+        </div>
+        <div class="tier-card active-tier">
+          <div class="tier-icon">🥇</div>
+          <div class="tier-name">Gold</div>
+          <div class="tier-desc">Unlimited · Full library · Priority access</div>
+          <div class="tier-badge">Current plan</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-icon">💎</div>
+          <div class="tier-name">Platinum</div>
+          <div class="tier-desc">Gold + live data feeds + API access</div>
+          <div class="tier-badge">Upgrade</div>
+        </div>
+      </div>
+      <div class="doc-card" style="cursor: default;">
+        <div class="doc-icon pdf"><i class="ti ti-file-certificate"></i></div>
+        <div class="doc-info">
+          <div class="doc-name">Membership Certificate — Gold</div>
+          <div class="doc-meta"><span class="doc-cat">Credential</span><span class="doc-date">Valid until Dec 2025</span></div>
+        </div>
+        <div class="doc-actions"><button class="btn-dl"><i class="ti ti-download"></i> Download</button></div>
+      </div>
+      <div class="section-head" style="margin-top: 1.25rem;"><span class="section-title">Exclusive member documents</span></div>
+      <div class="doc-grid" id="memberDocGrid"></div>
+    </div>
+
+    <!-- ACTIVITY PANEL -->
+    <div class="panel" id="panel-activity">
+      <div style="height: 1.25rem;"></div>
+      <div class="section-head"><span class="section-title">Download History</span></div>
+      <div class="activity-list" id="activityList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const docs = [
+    { name: "ICC Test Match Playing Conditions", cat: "Rulebooks", type: "pdf", size: "2.4 MB", date: "May 2025" },
+    { name: "BCCI Player Contract Template 2025", cat: "Finance", type: "pdf", size: "890 KB", date: "Apr 2025" },
+    { name: "Batting Average Analysis — IPL 2025", cat: "Analytics", type: "xls", size: "1.1 MB", date: "Apr 2025" },
+    { name: "Fast Bowling Drills Compendium", cat: "Training", type: "pdf", size: "5.2 MB", date: "Mar 2025" },
+    { name: "World Cup 2023 Statistical Review", cat: "Analytics", type: "xls", size: "3.7 MB", date: "Jan 2025" },
+    { name: "History of Test Cricket 1877–2000", cat: "History", type: "pdf", size: "8.1 MB", date: "Dec 2024" },
+    { name: "Umpiring Signals & Laws Reference", cat: "Rulebooks", type: "pdf", size: "1.2 MB", date: "Nov 2024" },
+    { name: "Spin Bowling Masterclass Slides", cat: "Training", type: "ppt", size: "11 MB", date: "Oct 2024" },
+    { name: "Ground Maintenance Standards", cat: "Rulebooks", type: "pdf", size: "640 KB", date: "Sep 2024" },
+    { name: "Player Auction Model Template", cat: "Finance", type: "xls", size: "780 KB", date: "Aug 2024" },
+    { name: "DRS Technology Guide", cat: "Rulebooks", type: "pdf", size: "3.3 MB", date: "Jul 2024" },
+    { name: "Board Season Report Archives 2024", cat: "Finance", type: "zip", size: "22 MB", date: "Jun 2024" },
+  ];
+
+  const memberDocs = [
+    { name: "Confidential Fixture Calendar 2025–26", cat: "Finance", type: "pdf", size: "540 KB", date: "May 2025" },
+    { name: "Player Performance Benchmarks", cat: "Analytics", type: "xls", size: "2.2 MB", date: "Apr 2025" },
+  ];
+
+  const activity = [
+    { type: "dl", text: "<b>ICC Test Match Playing Conditions</b> downloaded", time: "2h ago" },
+    { type: "view", text: "<b>World Cup 2023 Statistical Review</b> previewed", time: "Yesterday" },
+    { type: "dl", text: "<b>Fast Bowling Drills Compendium</b> downloaded", time: "3 days ago" },
+    { type: "dl", text: "<b>Batting Average Analysis — IPL 2025</b> downloaded", time: "1 week ago" },
+    { type: "view", text: "<b>History of Test Cricket 1877–2000</b> previewed", time: "1 week ago" },
+    { type: "dl", text: "<b>DRS Technology Guide</b> downloaded", time: "2 weeks ago" },
+  ];
+
+  const typeIcon = { pdf: "ti-file-type-pdf", xls: "ti-table", ppt: "ti-presentation", zip: "ti-file-zip" };
+
+  function docCard(d) {
+    return `<div class="doc-card">
+      <div class="doc-icon ${d.type}"><i class="ti ${typeIcon[d.type]}"></i></div>
+      <div class="doc-info">
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-meta">
+          <span class="doc-cat">${d.cat}</span>
+          <span class="doc-size">${d.size}</span>
+          <span class="doc-date">${d.date}</span>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <button class="btn-preview" title="Preview"><i class="ti ti-eye"></i></button>
+        <button class="btn-dl"><i class="ti ti-download"></i> Get</button>
+      </div>
+    </div>`;
+  }
+
+  function renderDocs(list, targetId) {
+    document.getElementById(targetId).innerHTML = list.map(docCard).join('');
+  }
+
+  let currentFilter = 'All';
+  let currentSearch = '';
+
+  function setFilter(cat, el) {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = cat;
+    applyFilter();
+  }
+
+  function applyFilter() {
+    let filtered = docs;
+    if (currentFilter !== 'All') filtered = filtered.filter(d => d.cat === currentFilter);
+    if (currentSearch) filtered = filtered.filter(d =>
+      d.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+      d.cat.toLowerCase().includes(currentSearch.toLowerCase())
+    );
+    document.getElementById('docSectionTitle').textContent = currentFilter === 'All' ? 'All Documents' : currentFilter;
+    renderDocs(filtered, 'docGrid');
+  }
+
+  let searchTimer;
+  function handleSearch(val) {
+    currentSearch = val;
+    clearTimeout(searchTimer);
+    const aiEl = document.getElementById('aiResult');
+    if (val.length < 3) { aiEl.classList.remove('visible'); applyFilter(); return; }
+    searchTimer = setTimeout(() => {
+      applyFilter();
+      aiEl.innerHTML = `<i class="ti ti-sparkles" style="color:#c8a84b; margin-right:6px;"></i> Showing documents matching <strong>"${val}"</strong>. Use filters above to narrow by category.`;
+      aiEl.classList.add('visible');
+    }, 300);
+  }
+
+  function switchTab(id, el) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
+    document.getElementById('panel-' + id).classList.add('visible');
+  }
+
+  renderDocs(docs, 'docGrid');
+  renderDocs(memberDocs, 'memberDocGrid');
+
+  const actList = document.getElementById('activityList');
+  actList.innerHTML = activity.map(a => `<div class="activity-item">
+    <div class="activity-dot ${a.type}"></div>
+    <div class="activity-text">${a.text}</div>
+    <div class="activity-time">${a.time}</div>
+  </div>`).join('');
+</script>
+
+</body>
+</html>
