@@ -130,7 +130,7 @@
     .phd-top{display:flex;align-items:center;justify-content:space-between;}
     .loa{display:flex;align-items:center;gap:10px;}
     .lmk{width:38px;height:38px;border-radius:50%;background:var(--g5);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--n9);}
-    .ltx h1{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#fff;letter-spacing:0.03em;}
+    .ltx h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#fff;letter-spacing:0.02em;}
     .ltx p{font-size:11px;color:var(--n2);letter-spacing:0.08em;text-transform:uppercase;margin-top:1px;}
     .phd-ac{display:flex;align-items:center;gap:10px;}
     .mbadge{background:rgba(200,168,75,0.15);border:0.5px solid var(--g5);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--g4);display:flex;align-items:center;gap:5px;}
@@ -380,17 +380,13 @@
     <div class="phd">
       <div class="phd-in">
         <div class="phd-top">
-          <div class="loa"><div class="lmk">C</div><div class="ltx"><h1>CricketVault</h1><p>Members' Document Library</p></div></div>
+          <div class="loa"><div class="lmk">C</div><div class="ltx"><h1 id="member-greeting">Welcome</h1></div></div>
           <div class="phd-ac">
             <div class="mbadge"><i class="ti ti-shield-check"></i> <span id="portal-tier">Member</span></div>
             <button class="blgo" onclick="doLogout()"><i class="ti ti-logout"></i> Sign out</button>
           </div>
         </div>
-        <div class="hsts">
-          <div><div class="sv" id="stat-docs">—</div><div class="sl2">Documents</div></div>
-          <div><div class="sv">18</div><div class="sl2">New this month</div></div>
-          <div><div class="sv" id="stat-dl">0</div><div class="sl2">Downloaded</div></div>
-        </div>
+
       </div>
     </div>
     <div class="ntabs">
@@ -648,9 +644,11 @@
     go('portal');
     const nm=profile?(profile.firstName||'')+' '+(profile.lastName||''):user.email;
     document.getElementById('wbanner').innerHTML=`<div class="wtst"><i class="ti ti-circle-check"></i> Welcome back, <strong style="margin-left:3px">${nm.trim()||user.email}</strong>!</div>`;
+    document.getElementById('member-greeting').textContent='Hi '+( nm.trim()||user.email);
     setTimeout(()=>{const b=document.getElementById('wbanner');if(b)b.innerHTML='';},5000);
     if(profile){
       populateProfile(profile);
+      memberPlan = profile.plan||'Gold';
       document.getElementById('portal-tier').textContent=profile.plan||'Member';
       // highlight correct tier card
       const plan = (profile.plan||'Gold').toLowerCase();
@@ -703,14 +701,20 @@
   };
 
   // ── DOCUMENTS ──
-  let allDocs=[],cFilt='All',cSrch='';
+  let allDocs=[],cFilt='All',cSrch='',memberPlan='Gold';
   async function loadDocs(){
     try{
       const q=query(collection(db,'documents'),orderBy('createdAt','desc'));
       const snap=await getDocs(q);
       allDocs=snap.docs.map(d=>({id:d.id,...d.data()}));
-      document.getElementById('stat-docs').textContent=allDocs.length;
-      applyFilt();renderAdminDocs(allDocs);
+      // count only docs accessible to this member
+      const accessibleCount = allDocs.filter(d=>{
+        const dm=d.membership||'Gold';
+        if(dm==='Platinum') return memberPlan==='Platinum';
+        return true;
+      }).length;
+      const sdEl=document.getElementById('stat-docs'); if(sdEl) sdEl.textContent=accessibleCount;
+      applyFilt();
     }catch(err){
       document.getElementById('dgrid').innerHTML=`<div class="lcard">Error: ${err.message}</div>`;
     }
@@ -730,6 +734,12 @@
 
   function applyFilt(){
     let f=allDocs;
+    // filter by membership plan
+    f=f.filter(d=>{
+      const dm=d.membership||'Gold';
+      if(dm==='Platinum') return memberPlan==='Platinum';
+      return true; // Gold docs visible to all
+    });
     if(cFilt!=='All')f=f.filter(d=>d.category===cFilt);
     if(cSrch)f=f.filter(d=>(d.displayName||'').toLowerCase().includes(cSrch.toLowerCase()));
     document.getElementById('dtit').textContent=cFilt==='All'?'All Documents':cFilt;
@@ -778,6 +788,7 @@
 
   function renderAdminDocs(docs){
     const g=document.getElementById('admin-dg');
+    if(!g) return;
     if(!docs.length){g.innerHTML='<div class="lcard">No documents added yet.</div>';return;}
     g.innerHTML=docs.map(d=>{
       const t=d.fileType||'def',ico=TICO[t]||'ti-file';
@@ -800,7 +811,7 @@
       {t:"dl",x:"<b>Fast Bowling Drills Compendium</b> downloaded",tm:"3 days ago"},
     ];
     document.getElementById('alist').innerHTML=ACT.map(a=>`<div class="ait"><div class="adot ${a.t}"></div><div class="atx">${a.x}</div><div class="atm">${a.tm}</div></div>`).join('');
-    document.getElementById('stat-dl').textContent=ACT.filter(a=>a.t==='dl').length;
+    const dlEl=document.getElementById('stat-dl'); if(dlEl) dlEl.textContent=ACT.filter(a=>a.t==='dl').length;
   }
 
   // ── TABS ──

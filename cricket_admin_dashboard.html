@@ -250,6 +250,14 @@
               <option value="def">Other</option>
             </select></div>
           </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Membership access</label>
+            <div style="position:relative;"><i class="ti ti-shield" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <select id="d-membership" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+              <option value="Gold">Gold & above</option>
+              <option value="Platinum">Platinum only</option>
+            </select></div>
+          </div>
         </div>
         <div class="ebox" id="adm-err" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="adm-err-m"></span></div>
         <div class="okbox" id="adm-ok" style="margin-top:1rem"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Document added successfully!</span></div>
@@ -559,10 +567,11 @@
     const wrap=document.getElementById('docs-wrap');
     if(!list.length){ wrap.innerHTML=`<div class="empty"><i class="ti ti-files"></i>No documents found.</div>`; return; }
     wrap.innerHTML=`<table class="mtbl">
-      <thead><tr><th>Document</th><th>Category</th><th>Size</th><th>Added</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Document</th><th>Category</th><th>Access</th><th>Size</th><th>Added</th><th>Actions</th></tr></thead>
       <tbody>${list.map(d=>`<tr>
         <td><div class="mn">${d.displayName||'—'}</div></td>
         <td>${d.category||'—'}</td>
+        <td><span class="sbdg ${d.membership==='Platinum'?'rejected':'approved'}">${d.membership==='Platinum'?'Platinum only':'Gold+'}</span></td>
         <td>${d.size||'—'}</td>
         <td>${fmtDate(d.createdAt)}</td>
         <td><div class="abts">
@@ -609,7 +618,7 @@
     document.getElementById('adlbl').textContent='Adding…';
     try{
       await db.collection('documents').add({
-        displayName:name, category:cat, size, fileType:type,
+        displayName:name, category:cat, size, fileType:type, membership:document.getElementById('d-membership').value||'Gold',
         downloadUrl:url, addedBy:auth.currentUser?.uid||'admin',
         createdAt:firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -623,6 +632,7 @@
       document.getElementById('d-cat').value='';
       document.getElementById('d-size').value='';
       document.getElementById('d-type').value='pdf';
+      document.getElementById('d-membership').value='Gold';
       await loadDocs();
       loadAdminDocs();
       toast('Document added to library.');
@@ -647,10 +657,13 @@
     g.innerHTML=allDocs.map(d=>{
       const t=d.fileType||'def',ico=TICO2[t]||'ti-file';
       const date=fmtDate(d.createdAt);
+      const mbadge = d.membership==='Platinum'
+        ? `<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:#ede8fb;color:#5a3baa;border:0.5px solid #c4b5f7;">Platinum</span>`
+        : `<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:var(--n0);color:var(--n4);border:0.5px solid var(--n1);">Gold+</span>`;
       return `<div style="background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
         <div style="width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;background:#fbeaea;color:#a33;"><i class="ti ${ico}"></i></div>
         <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.displayName||'—'}</div>
-          <div style="display:flex;gap:10px;margin-top:3px;"><span style="font-size:11px;padding:1px 7px;border-radius:10px;background:var(--n0);color:var(--n7);border:0.5px solid var(--n1);">${d.category||'General'}</span>${d.size?`<span style="font-size:11px;color:var(--tx);">${d.size}</span>`:''}<span style="font-size:11px;color:var(--tx);">${date}</span></div>
+          <div style="display:flex;gap:10px;margin-top:3px;"><span style="font-size:11px;padding:1px 7px;border-radius:10px;background:var(--n0);color:var(--n7);border:0.5px solid var(--n1);">${d.category||'General'}</span>${mbadge}${d.size?`<span style="font-size:11px;color:var(--tx);">${d.size}</span>`:''}<span style="font-size:11px;color:var(--tx);">${date}</span></div>
         </div>
         <div style="display:flex;gap:8px;flex-shrink:0;">
           <button class="abt" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button>
@@ -687,6 +700,12 @@
             <option value="def" ${d.fileType==='def'?'selected':''}>Other</option>
           </select>
         </div>
+        <div class="mf"><div class="mfl">Membership access</div>
+          <select id="ed-dmembership">
+            <option value="Gold" ${(d.membership||'Gold')==='Gold'?'selected':''}>Gold & above</option>
+            <option value="Platinum" ${d.membership==='Platinum'?'selected':''}>Platinum only</option>
+          </select>
+        </div>
       </div>
       <div class="macts">
         <button class="mbtn save" onclick="saveDocModal('${d.id}')"><i class="ti ti-device-floppy"></i> Save changes</button>
@@ -703,6 +722,7 @@
         category:document.getElementById('ed-dcat').value,
         size:document.getElementById('ed-dsize').value.trim(),
         fileType:document.getElementById('ed-dtype').value,
+        membership:document.getElementById('ed-dmembership').value,
       };
       await db.collection('documents').doc(id).update(upd);
       const d=allDocs.find(x=>x.id===id);
