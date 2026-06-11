@@ -396,7 +396,6 @@
     <div class="ntabs">
       <button class="ntab act" onclick="tab('lib',this)"><i class="ti ti-library"></i> Library</button>
       <button class="ntab" onclick="tab('mem',this)"><i class="ti ti-id-badge"></i> Membership</button>
-      <button class="ntab" onclick="tab('admin',this)"><i class="ti ti-plus"></i> Add Document</button>
       <button class="ntab" onclick="tab('act',this)"><i class="ti ti-activity"></i> Activity</button>
     </div>
     <div class="cnt">
@@ -458,57 +457,7 @@
       </div>
 
       <!-- ADD DOCUMENT (OneDrive) -->
-      <div class="pnl" id="pnl-admin">
-        <div style="height:1.25rem"></div>
-        <div class="sh"><span class="stl">Add Document</span></div>
-        <div class="admin-panel">
-          <h3><i class="ti ti-brand-onedrive" style="color:var(--n4);margin-right:6px"></i>Add via OneDrive Link</h3>
-          <div class="adm-grid">
-            <div class="adm-fld full">
-              <label>OneDrive share link</label>
-              <div class="adm-wrap"><i class="ti ti-link"></i><input type="url" id="d-url" placeholder="https://1drv.ms/b/s!..." /></div>
-              <div class="adm-hint">In OneDrive: right-click file → Share → Copy link (set to "Anyone with the link can view")</div>
-            </div>
-            <div class="adm-fld full">
-              <label>Document name</label>
-              <div class="adm-wrap"><i class="ti ti-file-description"></i><input type="text" id="d-name" placeholder="e.g. ICC Playing Conditions 2024" /></div>
-            </div>
-            <div class="adm-fld">
-              <label>Category</label>
-              <div class="adm-wrap"><i class="ti ti-tag"></i>
-                <select id="d-cat">
-                  <option value="">Select category…</option>
-                  <option>Rulebooks</option><option>Analytics</option><option>Training</option>
-                  <option>Finance</option><option>History</option>
-                </select>
-              </div>
-            </div>
-            <div class="adm-fld">
-              <label>File size (e.g. 2.4 MB)</label>
-              <div class="adm-wrap"><i class="ti ti-database"></i><input type="text" id="d-size" placeholder="e.g. 2.4 MB" /></div>
-            </div>
-            <div class="adm-fld">
-              <label>File type</label>
-              <div class="adm-wrap"><i class="ti ti-file"></i>
-                <select id="d-type">
-                  <option value="pdf">PDF</option><option value="xls">Excel (XLS)</option>
-                  <option value="ppt">PowerPoint</option><option value="zip">ZIP</option>
-                  <option value="def">Other</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="ebox" id="adm-err" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="adm-err-m"></span></div>
-          <div class="okbox" id="adm-ok" style="margin-top:1rem"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Document added successfully!</span></div>
-          <button class="btn-add" id="btn-add" onclick="addDoc()">
-            <div class="spin" id="aspin"></div>
-            <i class="ti ti-circle-plus" id="adic"></i>
-            <span id="adlbl">Add to Library</span>
-          </button>
-        </div>
-        <div class="sh"><span class="stl">All Documents</span></div>
-        <div class="dg" id="admin-dg"><div class="lcard">Loading…</div></div>
-      </div>
+
 
       <!-- ACTIVITY -->
       <div class="pnl" id="pnl-act">

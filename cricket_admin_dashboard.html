@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CricketVault — Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --n9:#0b1829;--n8:#112240;--n7:#1a3358;--n6:#1e4080;--n4:#2558a8;
+      --n2:#7aa4d8;--n1:#b8cfe8;--n0:#eaf0f8;
+      --g5:#c8a84b;--g4:#d4b96a;
+      --cr:#f8fafc;--td:#1a1c20;--tm:#40454f;--tx:#7a7f8a;
+      --bg:#fff;--bg2:#f4f5f7;--bd:rgba(0,0,0,0.12);
+      --r:8px;--rl:14px;
+      --green:#1a7a4a;--gbg:#edfaf3;--gbd:#6fcf97;
+      --red:#c0392b;--rbg:#fdf0f0;--rbd:#e57373;
+      --ora:#c45a0e;--obg:#fff1e6;--obd:#f4a261;
+    }
+    body{font-family:'DM Sans',sans-serif;color:var(--td);background:var(--cr);min-height:100vh;}
+    .pg{display:none;}.pg.on{display:flex;}
+    #portal.on{display:block;}
+    #login-page{min-height:100vh;align-items:center;justify-content:center;padding:2rem 1rem;}
+    .card{width:100%;max-width:420px;background:var(--bg);border-radius:18px;box-shadow:0 8px 48px rgba(11,24,41,0.14);overflow:hidden;}
+    .card-hd{background:var(--n9);padding:1.75rem 2rem;position:relative;overflow:hidden;}
+    .card-hd::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,0.02) 20px,rgba(255,255,255,0.02) 21px);}
+    .card-hd-in{position:relative;z-index:1;display:flex;align-items:center;gap:12px;}
+    .bmark{width:40px;height:40px;border-radius:50%;background:var(--g5);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--n9);flex-shrink:0;}
+    .bname{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#fff;}
+    .bsub{font-size:11px;color:var(--n2);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
+    .card-bd{padding:2rem;}
+    .ftitle{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--td);margin-bottom:4px;}
+    .fsub{font-size:13px;color:var(--tx);margin-bottom:1.5rem;}
+    .fld{margin-bottom:1rem;}
+    .fld label{display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;}
+    .fw{position:relative;}
+    .fw .fi{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx);pointer-events:none;}
+    .fw input{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:14px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;}
+    .fw input:focus{outline:none;border-color:var(--n4);}
+    .fw input::placeholder{color:var(--tx);opacity:0.6;}
+    .btnp{width:100%;padding:10px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .btnp:hover{background:var(--n7);}
+    .btnp:disabled{opacity:0.6;cursor:not-allowed;}
+    .ebox{background:var(--rbg);border:0.5px solid var(--rbd);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:1rem;display:none;align-items:center;gap:6px;}
+    .ebox.on{display:flex;}
+    .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;display:none;}
+    @keyframes sp{to{transform:rotate(360deg);}}
+
+    /* portal */
+    .adm-hdr{background:var(--n9);padding:1.25rem 2rem;position:relative;overflow:hidden;}
+    .adm-hdr::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(255,255,255,0.02) 18px,rgba(255,255,255,0.02) 19px);}
+    .adm-hdr-in{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;}
+    .adm-brand{display:flex;align-items:center;gap:10px;}
+    .adm-brand .bmark{width:36px;height:36px;font-size:16px;}
+    .adm-brand-txt h1{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#fff;}
+    .adm-brand-txt p{font-size:11px;color:var(--n2);letter-spacing:0.06em;text-transform:uppercase;margin-top:1px;}
+    .adm-hdr-r{display:flex;align-items:center;gap:10px;}
+    .abadge{background:rgba(200,168,75,0.15);border:0.5px solid var(--g5);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--g4);display:flex;align-items:center;gap:5px;}
+    .blgo{background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--n2);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;}
+    .blgo:hover{background:rgba(255,255,255,0.14);color:#fff;}
+    .stats-bar{background:var(--n8);padding:1rem 2rem;display:flex;gap:2rem;border-bottom:1px solid var(--n7);flex-wrap:wrap;}
+    .sv{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--g4);}
+    .sl{font-size:11px;color:var(--n2);margin-top:2px;letter-spacing:0.04em;}
+    .atabs{display:flex;background:var(--n8);border-bottom:1px solid var(--n7);overflow-x:auto;}
+    .atab{padding:12px 20px;font-size:13px;color:var(--n2);cursor:pointer;border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;}
+    .atab.act{color:var(--g4);border-bottom-color:var(--g5);}
+    .atab:hover:not(.act){color:#fff;}
+    .bcnt{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:600;margin-left:2px;}
+    .acnt{max-width:1100px;margin:0 auto;padding:1.5rem 2rem;}
+    .pnl{display:none;}.pnl.on{display:block;}
+    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+    .stl{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--td);}
+    .toolbar{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+    .tsrch{position:relative;flex:1;min-width:180px;}
+    .tsrch i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;}
+    .tsrch input{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;}
+    .tsrch input:focus{outline:none;border-color:var(--n4);}
+    .tsrch input::placeholder{color:var(--tx);opacity:0.6;}
+    .tsel{padding:9px 14px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;cursor:pointer;appearance:none;}
+    .tsel:focus{outline:none;border-color:var(--n4);}
+    .expbtn{padding:9px 16px;background:none;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--tm);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+    .expbtn:hover{border-color:var(--n4);color:var(--n7);}
+    .mtbl{width:100%;border-collapse:collapse;background:var(--bg);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 8px rgba(11,24,41,0.07);}
+    .mtbl th{background:var(--n0);font-size:11px;font-weight:600;color:var(--n7);text-transform:uppercase;letter-spacing:0.05em;padding:10px 14px;text-align:left;border-bottom:0.5px solid var(--n1);}
+    .mtbl td{padding:11px 14px;font-size:13px;color:var(--tm);border-bottom:0.5px solid var(--bd);vertical-align:middle;}
+    .mtbl tr:last-child td{border-bottom:none;}
+    .mtbl tr:hover td{background:var(--n0);}
+    .mn{font-weight:500;color:var(--td);}
+    .me{font-size:12px;color:var(--tx);margin-top:2px;}
+    .sbdg{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;}
+    .sbdg.pending{background:var(--obg);color:var(--ora);border:0.5px solid var(--obd);}
+    .sbdg.approved{background:var(--gbg);color:var(--green);border:0.5px solid var(--gbd);}
+    .sbdg.rejected{background:var(--rbg);color:var(--red);border:0.5px solid var(--rbd);}
+    .abts{display:flex;gap:6px;flex-wrap:wrap;}
+    .abt{padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;border:0.5px solid var(--bd);background:none;color:var(--tm);white-space:nowrap;}
+    .abt:hover{border-color:var(--n4);color:var(--n7);}
+    .abt.apr{border-color:var(--gbd);color:var(--green);background:var(--gbg);}
+    .abt.apr:hover{background:#c8f0dc;}
+    .abt.rjt{border-color:var(--rbd);color:var(--red);background:var(--rbg);}
+    .abt.rjt:hover{background:#fce0e0;}
+    .abt.del{border-color:var(--rbd);color:var(--red);}
+    .abt.del:hover{background:var(--rbg);}
+    .moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;}
+    .moverlay.on{display:flex;}
+    .modal{background:var(--bg);border-radius:18px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 64px rgba(0,0,0,0.2);}
+    .mhd{background:var(--n9);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;border-radius:18px 18px 0 0;position:sticky;top:0;}
+    .mhd h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#fff;}
+    .mclose{background:rgba(255,255,255,0.1);border:none;border-radius:6px;padding:6px 10px;color:#fff;cursor:pointer;font-size:16px;}
+    .mclose:hover{background:rgba(255,255,255,0.2);}
+    .mbd{padding:1.5rem;}
+    .mfg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+    .mf{background:var(--n0);border-radius:var(--r);padding:10px 12px;}
+    .mfl{font-size:11px;color:var(--tx);font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;}
+    .mfv{font-size:13px;color:var(--td);font-weight:500;}
+    .mf.full{grid-column:1/-1;}
+    .mf input,.mf select{width:100%;padding:6px 9px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;}
+    .mf input:focus,.mf select:focus{outline:none;border-color:var(--n4);}
+    .macts{display:flex;gap:10px;margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--bd);flex-wrap:wrap;}
+    .mbtn{padding:9px 18px;border-radius:var(--r);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;border:none;font-weight:500;}
+    .mbtn.save{background:var(--n9);color:#fff;}
+    .mbtn.save:hover{background:var(--n7);}
+    .mbtn.apr{background:var(--gbg);color:var(--green);border:1px solid var(--gbd);}
+    .mbtn.apr:hover{background:#c8f0dc;}
+    .mbtn.rjt{background:var(--rbg);color:var(--red);border:1px solid var(--rbd);}
+    .mbtn.rjt:hover{background:#fce0e0;}
+    .mbtn.del{background:var(--rbg);color:var(--red);border:1px solid var(--rbd);}
+    .mbtn.del:hover{background:#fce0e0;}
+    .toast{position:fixed;bottom:2rem;right:2rem;padding:12px 18px;border-radius:var(--r);font-size:13px;color:#fff;background:var(--n9);box-shadow:0 4px 20px rgba(0,0,0,0.2);display:none;align-items:center;gap:8px;z-index:200;animation:fi 0.3s ease;}
+    .toast.on{display:flex;}
+    .toast.ok{background:var(--green);}
+    .toast.err{background:var(--red);}
+    @keyframes fi{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+    .empty{text-align:center;padding:3rem;color:var(--tx);font-size:13px;}
+    .empty i{font-size:32px;color:var(--n1);display:block;margin-bottom:10px;}
+    .lcard{padding:2rem;text-align:center;color:var(--tx);font-size:13px;background:var(--bg);border-radius:var(--rl);}
+    @media(max-width:700px){
+      .acnt{padding:1rem;}
+      .mtbl th:nth-child(3),.mtbl td:nth-child(3),
+      .mtbl th:nth-child(4),.mtbl td:nth-child(4){display:none;}
+      .mfg{grid-template-columns:1fr;}
+      .stats-bar{gap:1rem;}
+    }
+  </style>
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page" class="pg on">
+  <div class="card">
+    <div class="card-hd"><div class="card-hd-in"><div class="bmark">C</div><div><div class="bname">CricketVault</div><div class="bsub">Admin Dashboard</div></div></div></div>
+    <div class="card-bd">
+      <div class="ftitle">Admin Sign In</div>
+      <div class="fsub">Access restricted to administrators only.</div>
+      <div class="ebox" id="lerr"><i class="ti ti-alert-circle"></i><span id="lerr-m"></span></div>
+      <div class="fld"><label>Email address</label><div class="fw"><i class="ti ti-mail fi"></i><input type="email" id="le" placeholder="admin@example.com" /></div></div>
+      <div class="fld"><label>Password</label><div class="fw"><i class="ti ti-lock fi"></i><input type="password" id="lp" placeholder="Password" /></div></div>
+      <button class="btnp" id="lbtn"><div class="spin" id="lspin"></div><i class="ti ti-login" id="lic"></i><span id="llbl">Sign in</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal" class="pg">
+  <div class="adm-hdr">
+    <div class="adm-hdr-in">
+      <div class="adm-brand"><div class="bmark">C</div><div class="adm-brand-txt"><h1>CricketVault</h1><p>Admin Dashboard</p></div></div>
+      <div class="adm-hdr-r">
+        <div class="abadge"><i class="ti ti-shield-check"></i> Admin</div>
+        <button class="blgo" id="logoutBtn"><i class="ti ti-logout"></i> Sign out</button>
+      </div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div><div class="sv" id="st-total">—</div><div class="sl">Total Members</div></div>
+    <div><div class="sv" id="st-pending">—</div><div class="sl">Pending</div></div>
+    <div><div class="sv" id="st-approved">—</div><div class="sl">Approved</div></div>
+    <div><div class="sv" id="st-rejected">—</div><div class="sl">Rejected</div></div>
+    <div><div class="sv" id="st-docs">—</div><div class="sl">Documents</div></div>
+  </div>
+  <div class="atabs">
+    <button class="atab act" id="tab-members"><i class="ti ti-users"></i> Members <span class="bcnt" id="pbadge">0</span></button>
+    <button class="atab" id="tab-docs"><i class="ti ti-files"></i> Documents</button>
+    <button class="atab" id="tab-adddoc"><i class="ti ti-plus"></i> Add Document</button>
+  </div>
+  <div class="acnt">
+    <div class="pnl on" id="pnl-members">
+      <div class="sh"><span class="stl">Member Applications</span><button class="expbtn" id="exportBtn"><i class="ti ti-download"></i> Export CSV</button></div>
+      <div class="toolbar">
+        <div class="tsrch"><i class="ti ti-search"></i><input type="text" id="msearch" placeholder="Search name, email…" /></div>
+        <select class="tsel" id="mstatus"><option value="">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+        <select class="tsel" id="mplan"><option value="">All Plans</option><option value="Gold">Gold</option><option value="Platinum">Platinum</option></select>
+      </div>
+      <div id="members-wrap"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading…</div></div>
+    </div>
+    <div class="pnl" id="pnl-docs">
+      <div class="sh"><span class="stl">Document Library</span></div>
+      <div class="toolbar">
+        <div class="tsrch"><i class="ti ti-search"></i><input type="text" id="dsearch" placeholder="Search documents…" /></div>
+        <select class="tsel" id="dcat"><option value="">All Categories</option><option>Rulebooks</option><option>Analytics</option><option>Training</option><option>Finance</option><option>History</option></select>
+      </div>
+      <div id="docs-wrap"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading…</div></div>
+    </div>
+
+    <!-- ADD DOCUMENT PANEL -->
+    <div class="pnl" id="pnl-adddoc">
+      <div class="sh"><span class="stl">Add Document</span></div>
+      <div style="background:var(--bg);border:1.5px dashed var(--n2);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--td);margin-bottom:1.25rem;">
+          <i class="ti ti-brand-onedrive" style="color:var(--n4);margin-right:6px"></i>Add via OneDrive Link
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">OneDrive share link</label>
+            <div style="position:relative;"><i class="ti ti-link" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <input type="url" id="d-url" placeholder="https://1drv.ms/b/s!..." style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" /></div>
+            <div style="font-size:11px;color:var(--tx);margin-top:4px;">In OneDrive: right-click file → Share → Copy link (set to "Anyone with the link can view")</div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Document name</label>
+            <div style="position:relative;"><i class="ti ti-file-description" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <input type="text" id="d-name" placeholder="e.g. ICC Playing Conditions 2024" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" /></div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Category</label>
+            <div style="position:relative;"><i class="ti ti-tag" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <select id="d-cat" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+              <option value="">Select category…</option>
+              <option>Rulebooks</option><option>Analytics</option><option>Training</option>
+              <option>Finance</option><option>History</option>
+            </select></div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">File size (e.g. 2.4 MB)</label>
+            <div style="position:relative;"><i class="ti ti-database" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <input type="text" id="d-size" placeholder="e.g. 2.4 MB" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" /></div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">File type</label>
+            <div style="position:relative;"><i class="ti ti-file" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <select id="d-type" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+              <option value="pdf">PDF</option><option value="xls">Excel (XLS)</option>
+              <option value="ppt">PowerPoint</option><option value="zip">ZIP</option>
+              <option value="def">Other</option>
+            </select></div>
+          </div>
+        </div>
+        <div class="ebox" id="adm-err" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="adm-err-m"></span></div>
+        <div class="okbox" id="adm-ok" style="margin-top:1rem"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Document added successfully!</span></div>
+        <button id="btn-add" style="margin-top:1.25rem;padding:9px 22px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;">
+          <div class="spin" id="aspin"></div>
+          <i class="ti ti-circle-plus" id="adic"></i>
+          <span id="adlbl">Add to Library</span>
+        </button>
+      </div>
+      <div class="sh"><span class="stl">All Documents</span></div>
+      <div id="admin-dg"><div class="lcard">Loading…</div></div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay" id="modal">
+  <div class="modal">
+    <div class="mhd"><h2 id="modal-title">Member Details</h2><button class="mclose" id="closeModalBtn"><i class="ti ti-x"></i></button></div>
+    <div class="mbd" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-circle-check" id="toast-ic"></i><span id="toast-msg"></span></div>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  // ── FIREBASE INIT ──
+  firebase.initializeApp({
+    apiKey:"AIzaSyBuoMwXGficK4pjvYZDpCTFM3uTLwKfPxk",
+    authDomain:"vnkmembershipwebsite.firebaseapp.com",
+    projectId:"vnkmembershipwebsite",
+    storageBucket:"vnkmembershipwebsite.firebasestorage.app",
+    messagingSenderId:"560196378389",
+    appId:"1:560196378389:web:f5b99063772cef747a131c"
+  });
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  // ── EMAILJS ──
+  emailjs.init('h7gmIkQiNaJvpPUB_');
+  const SVC      = 'service_x1a9y0w';
+  const TPL_OK   = 'template_120snew';
+  const TPL_REJ  = 'template_53le5j8';
+  const ADM_MAIL = 'vishalkoolkarni@gmail.com';
+
+  // ── HELPERS ──
+  function show(id){ document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+  function toast(msg, type='ok'){
+    const t=document.getElementById('toast');
+    t.className='toast on '+type;
+    document.getElementById('toast-ic').className=type==='err'?'ti ti-alert-circle':'ti ti-circle-check';
+    document.getElementById('toast-msg').textContent=msg;
+    setTimeout(()=>t.classList.remove('on'),3500);
+  }
+  function fmtDate(ts){ return ts?.toDate?ts.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—'; }
+
+  // ── AUTH STATE ──
+  auth.onAuthStateChanged(user=>{
+    if(user){ show('portal'); loadAll(); }
+    else { show('login-page'); }
+  });
+
+  // ── LOGIN ──
+  document.getElementById('lbtn').addEventListener('click', async()=>{
+    const e=document.getElementById('le').value.trim();
+    const p=document.getElementById('lp').value;
+    document.getElementById('lerr').classList.remove('on');
+    if(!e||!p) return;
+    const btn=document.getElementById('lbtn');
+    btn.disabled=true;
+    document.getElementById('lspin').style.display='block';
+    document.getElementById('lic').style.display='none';
+    document.getElementById('llbl').textContent='Signing in…';
+    try{
+      await auth.signInWithEmailAndPassword(e,p);
+    } catch(err){
+      btn.disabled=false;
+      document.getElementById('lspin').style.display='none';
+      document.getElementById('lic').style.display='';
+      document.getElementById('llbl').textContent='Sign in';
+      document.getElementById('lerr-m').textContent=err.code==='auth/invalid-credential'?'Invalid email or password.':err.message;
+      document.getElementById('lerr').classList.add('on');
+    }
+  });
+
+  document.getElementById('lp').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lbtn').click(); });
+  document.getElementById('le').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lp').focus(); });
+
+  // ── LOGOUT ──
+  document.getElementById('logoutBtn').addEventListener('click', ()=>auth.signOut());
+
+  // ── TABS ──
+  document.getElementById('tab-members').addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-members').classList.add('on');
+  });
+  document.getElementById('tab-adddoc').addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-adddoc').classList.add('on');
+    loadAdminDocs();
+  });
+  document.getElementById('tab-docs').addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-docs').classList.add('on');
+  });
+
+  // ── DATA ──
+  let allMembers=[], allDocs=[];
+
+  async function loadAll(){ await Promise.all([loadMembers(), loadDocs()]); }
+
+  async function loadMembers(){
+    try{
+      const snap = await db.collection('members').orderBy('createdAt','desc').get();
+      allMembers = snap.docs.map(d=>({id:d.id,...d.data()}));
+      updateStats(); renderMembers(allMembers);
+    } catch(err){ document.getElementById('members-wrap').innerHTML=`<div class="lcard">Error: ${err.message}</div>`; }
+  }
+
+  async function loadDocs(){
+    try{
+      const snap = await db.collection('documents').orderBy('createdAt','desc').get();
+      allDocs = snap.docs.map(d=>({id:d.id,...d.data()}));
+      document.getElementById('st-docs').textContent=allDocs.length;
+      renderDocs(allDocs);
+    } catch(err){ document.getElementById('docs-wrap').innerHTML=`<div class="lcard">Error: ${err.message}</div>`; }
+  }
+
+  function updateStats(){
+    document.getElementById('st-total').textContent=allMembers.length;
+    const p=allMembers.filter(m=>(m.status||'pending')==='pending').length;
+    document.getElementById('st-pending').textContent=p;
+    document.getElementById('st-approved').textContent=allMembers.filter(m=>m.status==='approved').length;
+    document.getElementById('st-rejected').textContent=allMembers.filter(m=>m.status==='rejected').length;
+    document.getElementById('pbadge').textContent=p;
+    document.getElementById('pbadge').style.display=p?'':'none';
+  }
+
+  // ── RENDER MEMBERS ──
+  function renderMembers(list){
+    const wrap=document.getElementById('members-wrap');
+    if(!list.length){ wrap.innerHTML=`<div class="empty"><i class="ti ti-users"></i>No members found.</div>`; return; }
+    wrap.innerHTML=`<table class="mtbl">
+      <thead><tr><th>Member</th><th>Plan</th><th>Applied</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(m=>`<tr>
+        <td><div class="mn">${m.firstName||''} ${m.lastName||''}</div><div class="me">${m.email||''}</div></td>
+        <td>${m.plan||'—'}</td>
+        <td>${fmtDate(m.createdAt)}</td>
+        <td>${m.level==='national'?'National':'State'}</td>
+        <td><span class="sbdg ${m.status||'pending'}">${cap(m.status||'pending')}</span></td>
+        <td><div class="abts">
+          <button class="abt" onclick="openModal('${m.id}')"><i class="ti ti-eye"></i> View</button>
+          ${m.status!=='approved'?`<button class="abt apr" onclick="doApprove('${m.id}')"><i class="ti ti-check"></i> Approve</button>`:''}
+          ${m.status!=='rejected'?`<button class="abt rjt" onclick="doReject('${m.id}')"><i class="ti ti-x"></i> Reject</button>`:''}
+          <button class="abt del" onclick="doDelete('${m.id}')"><i class="ti ti-trash"></i></button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  // ── FILTER ──
+  document.getElementById('msearch').addEventListener('input', filterMembers);
+  document.getElementById('mstatus').addEventListener('change', filterMembers);
+  document.getElementById('mplan').addEventListener('change', filterMembers);
+  document.getElementById('dsearch').addEventListener('input', filterDocs);
+  document.getElementById('dcat').addEventListener('change', filterDocs);
+
+  function filterMembers(){
+    const s=document.getElementById('msearch').value.toLowerCase();
+    const st=document.getElementById('mstatus').value;
+    const pl=document.getElementById('mplan').value;
+    let f=allMembers;
+    if(s) f=f.filter(m=>(m.firstName+' '+m.lastName+' '+m.email).toLowerCase().includes(s));
+    if(st) f=f.filter(m=>(m.status||'pending')===st);
+    if(pl) f=f.filter(m=>m.plan===pl);
+    renderMembers(f);
+  }
+
+  function filterDocs(){
+    const s=document.getElementById('dsearch').value.toLowerCase();
+    const cat=document.getElementById('dcat').value;
+    let f=allDocs;
+    if(s) f=f.filter(d=>(d.displayName||'').toLowerCase().includes(s));
+    if(cat) f=f.filter(d=>d.category===cat);
+    renderDocs(f);
+  }
+
+  // ── APPROVE / REJECT / DELETE ──
+  async function doApprove(id){
+    const m=allMembers.find(x=>x.id===id);
+    if(!m||!confirm(`Approve ${m.firstName} ${m.lastName}?`)) return;
+    try{
+      await db.collection('members').doc(id).update({status:'approved'});
+      m.status='approved'; updateStats(); renderMembers(allMembers);
+      await emailjs.send(SVC, TPL_OK,{
+        member_name:`${m.firstName} ${m.lastName}`,
+        member_email:m.email, member_plan:m.plan||'',
+        status:'Approved',
+        message:'Congratulations! Your CricketVault membership has been approved. You can now sign in and access the full document library.',
+        to_email:m.email, admin_email:ADM_MAIL
+      });
+      toast('Member approved and notified by email.');
+    } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  async function doReject(id){
+    const m=allMembers.find(x=>x.id===id);
+    if(!m||!confirm(`Reject ${m.firstName} ${m.lastName}?`)) return;
+    try{
+      await db.collection('members').doc(id).update({status:'rejected'});
+      m.status='rejected'; updateStats(); renderMembers(allMembers);
+      await emailjs.send(SVC, TPL_REJ,{
+        member_name:`${m.firstName} ${m.lastName}`,
+        member_email:m.email, member_plan:m.plan||'',
+        status:'Rejected',
+        message:'We regret to inform you that your CricketVault membership application has not been approved at this time.',
+        to_email:m.email, admin_email:ADM_MAIL
+      });
+      toast('Member rejected and notified by email.');
+    } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  async function doDelete(id){
+    const m=allMembers.find(x=>x.id===id);
+    if(!m||!confirm(`Permanently delete ${m.firstName} ${m.lastName}? This cannot be undone.`)) return;
+    try{
+      await db.collection('members').doc(id).delete();
+      allMembers=allMembers.filter(x=>x.id!==id);
+      updateStats(); renderMembers(allMembers);
+      toast('Member deleted.');
+    } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  async function doDeleteDoc(id){
+    if(!confirm('Delete this document?')) return;
+    try{
+      await db.collection('documents').doc(id).delete();
+      allDocs=allDocs.filter(x=>x.id!==id);
+      document.getElementById('st-docs').textContent=allDocs.length;
+      renderDocs(allDocs); toast('Document deleted.');
+    } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  // ── MODAL ──
+  function openModal(id){
+    const m=allMembers.find(x=>x.id===id); if(!m) return;
+    document.getElementById('modal-title').textContent=`${m.firstName||''} ${m.lastName||''}`;
+    document.getElementById('modal-body').innerHTML=`
+      <div class="mfg">
+        <div class="mf"><div class="mfl">First name</div><input id="ed-fn" value="${m.firstName||''}" /></div>
+        <div class="mf"><div class="mfl">Last name</div><input id="ed-ln" value="${m.lastName||''}" /></div>
+        <div class="mf"><div class="mfl">Email</div><div class="mfv">${m.email||'—'}</div></div>
+        <div class="mf"><div class="mfl">Phone</div><div class="mfv">${m.phone||'—'}</div></div>
+        <div class="mf"><div class="mfl">Date of birth</div><div class="mfv">${m.dob||'—'}</div></div>
+        <div class="mf"><div class="mfl">Country</div><div class="mfv">${m.country||'—'}</div></div>
+        <div class="mf"><div class="mfl">Affiliation</div><div class="mfv">${m.affiliation||'—'}</div></div>
+        <div class="mf"><div class="mfl">Applied</div><div class="mfv">${fmtDate(m.createdAt)}</div></div>
+        <div class="mf"><div class="mfl">Qualification</div><div class="mfv">${m.qualification||'—'}</div></div>
+        <div class="mf"><div class="mfl">State</div><div class="mfv">${m.state||'—'}</div></div>
+        <div class="mf"><div class="mfl">Level</div><div class="mfv">${m.level==='national'?'National':'State'}</div></div>
+        <div class="mf"><div class="mfl">Year passing (State)</div><div class="mfv">${m.yearPassingState||'—'}</div></div>
+        <div class="mf"><div class="mfl">Year passing (National)</div><div class="mfv">${m.yearPassingNational||'—'}</div></div>
+        <div class="mf"><div class="mfl">Plan</div><select id="ed-plan"><option ${m.plan==='Gold'?'selected':''}>Gold</option><option ${m.plan==='Platinum'?'selected':''}>Platinum</option></select></div>
+        <div class="mf"><div class="mfl">Status</div><select id="ed-status"><option value="pending" ${(m.status||'pending')==='pending'?'selected':''}>Pending</option><option value="approved" ${m.status==='approved'?'selected':''}>Approved</option><option value="rejected" ${m.status==='rejected'?'selected':''}>Rejected</option></select></div>
+      </div>
+      <div class="macts">
+        <button class="mbtn save" onclick="saveModal('${m.id}')"><i class="ti ti-device-floppy"></i> Save</button>
+        ${m.status!=='approved'?`<button class="mbtn apr" onclick="doApprove('${m.id}');closeModal()"><i class="ti ti-check"></i> Approve</button>`:''}
+        ${m.status!=='rejected'?`<button class="mbtn rjt" onclick="doReject('${m.id}');closeModal()"><i class="ti ti-x"></i> Reject</button>`:''}
+        <button class="mbtn del" onclick="doDelete('${m.id}');closeModal()"><i class="ti ti-trash"></i> Delete</button>
+      </div>`;
+    document.getElementById('modal').classList.add('on');
+  }
+
+  function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+
+  async function saveModal(id){
+    const m=allMembers.find(x=>x.id===id); if(!m) return;
+    try{
+      const upd={
+        firstName:document.getElementById('ed-fn').value.trim(),
+        lastName:document.getElementById('ed-ln').value.trim(),
+        plan:document.getElementById('ed-plan').value,
+        status:document.getElementById('ed-status').value
+      };
+      await db.collection('members').doc(id).update(upd);
+      Object.assign(m,upd); updateStats(); renderMembers(allMembers);
+      closeModal(); toast('Member details saved.');
+    } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  // ── RENDER DOCS ──
+  function renderDocs(list){
+    const wrap=document.getElementById('docs-wrap');
+    if(!list.length){ wrap.innerHTML=`<div class="empty"><i class="ti ti-files"></i>No documents found.</div>`; return; }
+    wrap.innerHTML=`<table class="mtbl">
+      <thead><tr><th>Document</th><th>Category</th><th>Size</th><th>Added</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(d=>`<tr>
+        <td><div class="mn">${d.displayName||'—'}</div></td>
+        <td>${d.category||'—'}</td>
+        <td>${d.size||'—'}</td>
+        <td>${fmtDate(d.createdAt)}</td>
+        <td><div class="abts">
+          <button class="abt" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button>
+          <button class="abt del" onclick="doDeleteDoc('${d.id}')"><i class="ti ti-trash"></i> Delete</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  // ── EXPORT CSV ──
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const hdrs=['First Name','Last Name','Email','Phone','DOB','Country','Affiliation','Qualification','State','Level','Year (State)','Year (National)','Plan','Status','Applied'];
+    const rows=allMembers.map(m=>[
+      m.firstName||'',m.lastName||'',m.email||'',m.phone||'',m.dob||'',
+      m.country||'',m.affiliation||'',m.qualification||'',m.state||'',
+      m.level||'',m.yearPassingState||'',m.yearPassingNational||'',
+      m.plan||'',m.status||'',fmtDate(m.createdAt)
+    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+    const csv=[hdrs.join(','),...rows].join('\n');
+    const a=document.createElement('a');
+    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download='cricketvault_members_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+    toast('CSV exported.');
+  });
+  // ── ADD DOCUMENT ──
+  async function addDoc(){
+    const url=document.getElementById('d-url').value.trim();
+    const name=document.getElementById('d-name').value.trim();
+    const cat=document.getElementById('d-cat').value;
+    const size=document.getElementById('d-size').value.trim();
+    const type=document.getElementById('d-type').value;
+    document.getElementById('adm-err').classList.remove('on');
+    document.getElementById('adm-ok').classList.remove('on');
+    if(!url){showErr('adm-err','adm-err-m','Please enter a OneDrive link.');return;}
+    if(!name){showErr('adm-err','adm-err-m','Please enter a document name.');return;}
+    if(!cat){showErr('adm-err','adm-err-m','Please select a category.');return;}
+    const btn=document.getElementById('btn-add');
+    btn.disabled=true;
+    document.getElementById('aspin').style.display='block';
+    document.getElementById('adic').style.display='none';
+    document.getElementById('adlbl').textContent='Adding…';
+    try{
+      await db.collection('documents').add({
+        displayName:name, category:cat, size, fileType:type,
+        downloadUrl:url, addedBy:auth.currentUser?.uid||'admin',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      btn.disabled=false;
+      document.getElementById('aspin').style.display='none';
+      document.getElementById('adic').style.display='';
+      document.getElementById('adlbl').textContent='Add to Library';
+      document.getElementById('adm-ok').classList.add('on');
+      document.getElementById('d-url').value='';
+      document.getElementById('d-name').value='';
+      document.getElementById('d-cat').value='';
+      document.getElementById('d-size').value='';
+      document.getElementById('d-type').value='pdf';
+      await loadDocs();
+      loadAdminDocs();
+      toast('Document added to library.');
+    }catch(err){
+      btn.disabled=false;
+      document.getElementById('aspin').style.display='none';
+      document.getElementById('adic').style.display='';
+      document.getElementById('adlbl').textContent='Add to Library';
+      showErr('adm-err','adm-err-m','Error: '+err.message);
+    }
+  }
+
+  function showErr(boxId, msgId, msg){
+    document.getElementById(msgId).textContent=msg;
+    document.getElementById(boxId).classList.add('on');
+  }
+
+  function loadAdminDocs(){
+    const g=document.getElementById('admin-dg');
+    if(!allDocs.length){g.innerHTML='<div class="lcard">No documents yet.</div>';return;}
+    const TICO2={pdf:"ti-file-type-pdf",xls:"ti-table",ppt:"ti-presentation",zip:"ti-file-zip",def:"ti-file"};
+    g.innerHTML=allDocs.map(d=>{
+      const t=d.fileType||'def',ico=TICO2[t]||'ti-file';
+      const date=fmtDate(d.createdAt);
+      return `<div style="background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+        <div style="width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;background:#fbeaea;color:#a33;"><i class="ti ${ico}"></i></div>
+        <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.displayName||'—'}</div>
+          <div style="display:flex;gap:10px;margin-top:3px;"><span style="font-size:11px;padding:1px 7px;border-radius:10px;background:var(--n0);color:var(--n7);border:0.5px solid var(--n1);">${d.category||'General'}</span>${d.size?`<span style="font-size:11px;color:var(--tx);">${d.size}</span>`:''}<span style="font-size:11px;color:var(--tx);">${date}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <button class="abt" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button>
+          <button class="abt del" onclick="doDeleteDoc('${d.id}')"><i class="ti ti-trash"></i> Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('btn-add').addEventListener('click', addDoc);
+
+  // expose to window for dynamic onclick use
+  window.doApprove  = doApprove;
+  window.doReject   = doReject;
+  window.doDelete   = doDelete;
+  window.doDeleteDoc= doDeleteDoc;
+  window.openModal  = openModal;
+  window.closeModal = closeModal;
+  window.saveModal  = saveModal;
+  }); // end DOMContentLoaded
+</script>
+</body>
+</html>
