@@ -451,8 +451,8 @@
         </div>
         <div class="sh"><span class="stl">Your Membership</span></div>
         <div class="tgrid">
-          <div class="tcard cur"><div class="tic">🥇</div><div class="tnm">Gold</div><div class="tds">Unlimited · Full library · Priority access</div><div class="tbg">Current plan</div></div>
-          <div class="tcard"><div class="tic">💎</div><div class="tnm">Platinum</div><div class="tds">Gold + live data feeds + API access</div><div class="tbg">Upgrade</div></div>
+          <div class="tcard" id="tier-gold"><div class="tic">🥇</div><div class="tnm">Gold</div><div class="tds">Unlimited · Full library · Priority access</div><div class="tbg" id="tier-gold-badge">Upgrade</div></div>
+          <div class="tcard" id="tier-platinum"><div class="tic">💎</div><div class="tnm">Platinum</div><div class="tds">Gold + live data feeds + API access</div><div class="tbg" id="tier-platinum-badge">Upgrade</div></div>
         </div>
       </div>
 
@@ -625,6 +625,16 @@
         });
         document.getElementById('sref').textContent='REF: CV-2025-'+Math.floor(10000+Math.random()*90000);
         showStep(4);
+        // reset form fields so if user comes back form is clean
+        setTimeout(()=>{
+          document.querySelectorAll('#step1 input,#step2 input,#step2 select').forEach(el=>{
+            if(el.type==='radio'){el.checked=el.defaultChecked;}else{el.value='';}
+          });
+          document.getElementById('a-src').value='';
+          aStep=1; aTier='Gold';
+          document.querySelectorAll('.topt').forEach(t=>t.classList.remove('pk'));
+          const gld=document.querySelector('.topt');if(gld)gld.classList.add('pk');
+        }, 500);
       }catch(err){
         btn.disabled=false;btn.innerHTML='Submit Application <i class="ti ti-send"></i>';
         showE('aerr','aerr-m',err.code==='auth/email-already-in-use'?'An account with this email already exists. Please sign in instead.':err.message);
@@ -639,7 +649,18 @@
     const nm=profile?(profile.firstName||'')+' '+(profile.lastName||''):user.email;
     document.getElementById('wbanner').innerHTML=`<div class="wtst"><i class="ti ti-circle-check"></i> Welcome back, <strong style="margin-left:3px">${nm.trim()||user.email}</strong>!</div>`;
     setTimeout(()=>{const b=document.getElementById('wbanner');if(b)b.innerHTML='';},5000);
-    if(profile){populateProfile(profile);document.getElementById('portal-tier').textContent=profile.plan||'Member';}
+    if(profile){
+      populateProfile(profile);
+      document.getElementById('portal-tier').textContent=profile.plan||'Member';
+      // highlight correct tier card
+      const plan = (profile.plan||'Gold').toLowerCase();
+      ['gold','platinum'].forEach(t=>{
+        const card=document.getElementById('tier-'+t);
+        const badge=document.getElementById('tier-'+t+'-badge');
+        if(t===plan){card.classList.add('cur');badge.textContent='Current plan';}
+        else{card.classList.remove('cur');badge.textContent='Upgrade';}
+      });
+    }
     await loadDocs();
     loadActivity();
   }

@@ -567,6 +567,7 @@
         <td>${fmtDate(d.createdAt)}</td>
         <td><div class="abts">
           <button class="abt" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button>
+          <button class="abt" onclick="openDocModal('${d.id}')"><i class="ti ti-edit"></i> Edit</button>
           <button class="abt del" onclick="doDeleteDoc('${d.id}')"><i class="ti ti-trash"></i> Delete</button>
         </div></td>
       </tr>`).join('')}</tbody>
@@ -653,16 +654,70 @@
         </div>
         <div style="display:flex;gap:8px;flex-shrink:0;">
           <button class="abt" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button>
+          <button class="abt" onclick="openDocModal('${d.id}')"><i class="ti ti-edit"></i> Edit</button>
           <button class="abt del" onclick="doDeleteDoc('${d.id}')"><i class="ti ti-trash"></i> Delete</button>
         </div>
       </div>`;
     }).join('');
   }
 
+  function openDocModal(id){
+    const d=allDocs.find(x=>x.id===id); if(!d) return;
+    document.getElementById('modal-title').textContent='Edit Document';
+    document.getElementById('modal-body').innerHTML=`
+      <div class="mfg">
+        <div class="mf full"><div class="mfl">Document name</div><input id="ed-dname" value="${d.displayName||''}" /></div>
+        <div class="mf full"><div class="mfl">OneDrive link</div><input id="ed-durl" value="${d.downloadUrl||''}" /></div>
+        <div class="mf"><div class="mfl">Category</div>
+          <select id="ed-dcat">
+            <option ${d.category==='Rulebooks'?'selected':''}>Rulebooks</option>
+            <option ${d.category==='Analytics'?'selected':''}>Analytics</option>
+            <option ${d.category==='Training'?'selected':''}>Training</option>
+            <option ${d.category==='Finance'?'selected':''}>Finance</option>
+            <option ${d.category==='History'?'selected':''}>History</option>
+          </select>
+        </div>
+        <div class="mf"><div class="mfl">File size</div><input id="ed-dsize" value="${d.size||''}" placeholder="e.g. 2.4 MB" /></div>
+        <div class="mf"><div class="mfl">File type</div>
+          <select id="ed-dtype">
+            <option value="pdf" ${d.fileType==='pdf'?'selected':''}>PDF</option>
+            <option value="xls" ${d.fileType==='xls'?'selected':''}>Excel (XLS)</option>
+            <option value="ppt" ${d.fileType==='ppt'?'selected':''}>PowerPoint</option>
+            <option value="zip" ${d.fileType==='zip'?'selected':''}>ZIP</option>
+            <option value="def" ${d.fileType==='def'?'selected':''}>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="macts">
+        <button class="mbtn save" onclick="saveDocModal('${d.id}')"><i class="ti ti-device-floppy"></i> Save changes</button>
+        <button class="mbtn del" onclick="doDeleteDoc('${d.id}');closeModal()"><i class="ti ti-trash"></i> Delete</button>
+      </div>`;
+    document.getElementById('modal').classList.add('on');
+  }
+
+  async function saveDocModal(id){
+    try{
+      const upd={
+        displayName:document.getElementById('ed-dname').value.trim(),
+        downloadUrl:document.getElementById('ed-durl').value.trim(),
+        category:document.getElementById('ed-dcat').value,
+        size:document.getElementById('ed-dsize').value.trim(),
+        fileType:document.getElementById('ed-dtype').value,
+      };
+      await db.collection('documents').doc(id).update(upd);
+      const d=allDocs.find(x=>x.id===id);
+      if(d) Object.assign(d,upd);
+      loadAdminDocs(); renderDocs(allDocs);
+      closeModal(); toast('Document updated.');
+    }catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
   document.getElementById('btn-add').addEventListener('click', addDoc);
 
   // expose to window for dynamic onclick use
   window.doApprove  = doApprove;
+  window.openDocModal = openDocModal;
+  window.saveDocModal = saveDocModal;
   window.doReject   = doReject;
   window.doDelete   = doDelete;
   window.doDeleteDoc= doDeleteDoc;
