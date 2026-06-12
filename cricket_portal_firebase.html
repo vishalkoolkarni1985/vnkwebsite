@@ -231,9 +231,115 @@
     .btn-add:hover{background:var(--n7);}
     .btn-add:disabled{opacity:0.6;cursor:not-allowed;}
     .lcard{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:2rem;text-align:center;color:var(--tx);font-size:13px;}
+
+    /* ── MOBILE FIRST RESPONSIVE ── */
+
+    /* Touch targets — all buttons/inputs min 44px */
+    button, input, select, textarea { touch-action: manipulation; }
+    .btnp { padding: 13px; font-size: 15px; }
+    .fw input { padding: 13px 13px 13px 38px; font-size: 15px; }
+    .fp { padding: 8px 16px; font-size: 13px; }
+    .bdl { padding: 10px 16px; font-size: 13px; }
+    .ntab { padding: 14px 18px; font-size: 13px; }
+
+    /* Inputs larger on mobile for easier tapping */
+    .af input, .af select { padding: 12px 11px 12px 36px; font-size: 15px; }
+    .miw input { padding: 12px 11px 12px 36px; font-size: 15px; }
+    .afw i, .miw i { font-size: 18px; }
+
     @media(max-width:600px){
-      .fg2,.mfr2,.adm-grid,.tpick,.tgrid{grid-template-columns:1fr;}
-      .sl{display:none;}
+      /* Auth pages */
+      #login, #forgot { padding: 1rem; align-items: flex-start; padding-top: 2rem; }
+      .acard { border-radius: 14px; }
+      .acard-hd { padding: 1.25rem 1.25rem; }
+      .acard-bd { padding: 1.25rem; }
+      .ftitle { font-size: 22px; }
+
+      /* Apply page */
+      #apply { padding: 1rem; }
+      .awrap { padding: 0; }
+      .abk { margin-bottom: 1rem; font-size: 14px; }
+      .acard2 { border-radius: 14px; }
+      .ahd { padding: 1.25rem; }
+      .ahd-txt h2 { font-size: 16px; }
+      .sbar { padding: 0.9rem 1rem; overflow-x: auto; }
+      .sl { display: none; }
+      .abdy { padding: 1.25rem; }
+      .asec { font-size: 14px; }
+      .fg2 { grid-template-columns: 1fr; gap: 0.75rem; }
+      .tpick { grid-template-columns: 1fr; }
+      .anav { padding: 1rem 1.25rem; }
+      .bprev, .bnxt { padding: 12px 18px; font-size: 14px; }
+      .asuc { padding: 2rem 1.25rem; }
+      .rvblk { padding: 0.75rem 1rem; }
+      .rvrow { font-size: 12px; padding: 6px 0; }
+
+      /* Portal header */
+      .portal { padding-bottom: 2rem; }
+      .phd { padding: 1rem 1rem 0.75rem; }
+      .lmk { width: 32px; height: 32px; font-size: 15px; }
+      .ltx h1 { font-size: 15px; }
+      .mbadge { padding: 3px 9px; font-size: 11px; }
+      .mbadge span { display: none; }
+      .mbadge::after { content: attr(data-tier); }
+      .blgo { padding: 6px 8px; font-size: 12px; }
+      .blgo span { display: none; }
+
+      /* Nav tabs */
+      .ntabs { -webkit-overflow-scrolling: touch; }
+      .ntab { padding: 12px 14px; font-size: 12px; gap: 4px; }
+      .ntab i { font-size: 16px; }
+
+      /* Content */
+      .cnt { padding: 1rem 1rem 0; }
+      .sh { margin-bottom: 0.75rem; }
+      .stl { font-size: 16px; }
+
+      /* Featured banner */
+      .fbn { padding: 0.9rem 1rem; gap: 10px; }
+      .fbn-ic { display: none; }
+      .fbn-tx h3 { font-size: 13px; }
+      .fbn-tx p { font-size: 11px; }
+      .fbn-btn { padding: 6px 12px; font-size: 12px; }
+
+      /* Search */
+      .si2 { padding: 12px 12px 12px 36px; font-size: 14px; }
+
+      /* Filter pills */
+      .fr { gap: 6px; }
+      .fp { padding: 7px 12px; font-size: 12px; }
+
+      /* Document cards */
+      .dc { padding: 0.85rem 0.9rem; gap: 10px; }
+      .di { width: 36px; height: 36px; font-size: 16px; border-radius: 7px; }
+      .dn2 { font-size: 13px; }
+      .dm { gap: 6px; flex-wrap: wrap; }
+      .dct, .dsz, .ddt { font-size: 10px; }
+      .bdl { padding: 8px 12px; font-size: 12px; }
+
+      /* Membership tab */
+      .mic { padding: 1rem; }
+      .mfr2 { grid-template-columns: 1fr; gap: 0.75rem; }
+      .tgrid { grid-template-columns: 1fr; gap: 8px; }
+      .tcard { padding: 0.85rem; display: flex; align-items: center; gap: 12px; text-align: left; }
+      .tic { font-size: 20px; margin-bottom: 0; flex-shrink: 0; }
+      .msave { justify-content: stretch; }
+      .bsave { width: 100%; justify-content: center; padding: 12px; }
+
+      /* Welcome toast */
+      .wtst { font-size: 12px; padding: 8px 12px; }
+
+      /* Activity */
+      .ait { padding: 12px 0; }
+      .atx { font-size: 12px; }
+      .atm { font-size: 11px; white-space: nowrap; }
+    }
+
+    @media(max-width:380px){
+      .acard-bd { padding: 1rem; }
+      .abdy { padding: 1rem; }
+      .cnt { padding: 0.75rem 0.75rem 0; }
+      .ntab { padding: 11px 10px; font-size: 11px; }
     }
   </style>
 </head>
@@ -408,8 +514,7 @@
           <button class="fp" onclick="filt('Rulebooks',this)">Rulebooks</button>
           <button class="fp" onclick="filt('Analytics',this)">Analytics</button>
           <button class="fp" onclick="filt('Training',this)">Training</button>
-          <button class="fp" onclick="filt('Finance',this)">Finance</button>
-          <button class="fp" onclick="filt('History',this)">History</button>
+
         </div>
         <div class="sh"><span class="stl" id="dtit">All Documents</span><a class="sa" href="#">Sort: Recent ↓</a></div>
         <div class="dg" id="dgrid"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading documents…</div></div>
