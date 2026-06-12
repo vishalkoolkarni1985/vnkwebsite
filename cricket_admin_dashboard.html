@@ -414,9 +414,17 @@
   function fmtDate(ts){ return ts?.toDate?ts.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—'; }
 
   // ── AUTH STATE ──
+  // Only restore session if user is already verified admin (stored in sessionStorage)
   auth.onAuthStateChanged(user=>{
-    if(user){ show('portal'); loadAll(); }
-    else { show('login-page'); }
+    if(user && sessionStorage.getItem('cv_admin_verified')==='true'){
+      show('portal'); loadAll();
+    } else if(!user){
+      sessionStorage.removeItem('cv_admin_verified');
+      show('login-page');
+    } else {
+      // User is logged in but not verified yet — sign them out silently
+      auth.signOut();
+    }
   });
 
   // ── LOGIN ──
@@ -431,7 +439,22 @@
     document.getElementById('lic').style.display='none';
     document.getElementById('llbl').textContent='Signing in…';
     try{
-      await auth.signInWithEmailAndPassword(e,p);
+      const cred = await auth.signInWithEmailAndPassword(e,p);
+      // Check isAdmin in Firestore
+      const snap = await db.collection('members').doc(cred.user.uid).get();
+      if(snap.exists && snap.data().isAdmin === true){
+        sessionStorage.setItem('cv_admin_verified','true');
+        show('portal'); loadAll();
+      } else {
+        await auth.signOut();
+        sessionStorage.removeItem('cv_admin_verified');
+        btn.disabled=false;
+        document.getElementById('lspin').style.display='none';
+        document.getElementById('lic').style.display='';
+        document.getElementById('llbl').textContent='Sign in';
+        document.getElementById('lerr-m').textContent='Access denied. You do not have admin privileges.';
+        document.getElementById('lerr').classList.add('on');
+      }
     } catch(err){
       btn.disabled=false;
       document.getElementById('lspin').style.display='none';
@@ -446,7 +469,15 @@
   document.getElementById('le').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lp').focus(); });
 
   // ── LOGOUT ──
-  document.getElementById('logoutBtn').addEventListener('click', ()=>auth.signOut());
+  document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+    sessionStorage.removeItem('cv_admin_verified');
+    await auth.signOut();
+    document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+    document.getElementById('login-page').classList.add('on');
+    document.getElementById('le').value='';
+    document.getElementById('lp').value='';
+    document.getElementById('lerr').classList.remove('on');
+  });
 
   // ── TABS ──
   document.getElementById('tab-members').addEventListener('click', function(){
@@ -505,7 +536,7 @@
     wrap.innerHTML=`<table class="mtbl">
       <thead><tr><th>Member</th><th>Plan</th><th>Applied</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>${list.map(m=>`<tr>
-        <td data-label="Member"><div class="mn">${m.firstName||''} ${m.lastName||''}</div><div class="me">${m.email||''}</div></td>
+        <td data-label="Member"><div class="mn">${m.firstName||''} ${m.lastName||''} ${m.isAdmin?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:#fffbf0;color:#c8a84b;border:0.5px solid #c8a84b;margin-left:4px;">Admin</span>':''}</div><div class="me">${m.email||''}</div></td>
         <td data-label="Plan">${m.plan||'—'}</td>
         <td data-label="Applied">${fmtDate(m.createdAt)}</td>
         <td data-label="Level">${m.level==='national'?'National':'State'}</td>
@@ -514,6 +545,7 @@
           <button class="abt" onclick="openModal('${m.id}')"><i class="ti ti-eye"></i> View</button>
           ${m.status!=='approved'?`<button class="abt apr" onclick="doApprove('${m.id}')"><i class="ti ti-check"></i> Approve</button>`:''}
           ${m.status!=='rejected'?`<button class="abt rjt" onclick="doReject('${m.id}')"><i class="ti ti-x"></i> Reject</button>`:''}
+          ${m.isAdmin?`<button class="abt" style="border-color:#c8a84b;color:#c8a84b;background:#fffbf0;" onclick="toggleAdmin('${m.id}',false)"><i class="ti ti-shield-off"></i> Remove Admin</button>`:`<button class="abt" style="border-color:#2558a8;color:#2558a8;background:#eaf0f8;" onclick="toggleAdmin('${m.id}',true)"><i class="ti ti-shield-check"></i> Make Admin</button>`}
           <button class="abt del" onclick="doDelete('${m.id}')"><i class="ti ti-trash"></i></button>
         </div></td>
       </tr>`).join('')}</tbody>
@@ -626,6 +658,14 @@
         <div class="mf"><div class="mfl">Year passing (National)</div><div class="mfv">${m.yearPassingNational||'—'}</div></div>
         <div class="mf"><div class="mfl">Plan</div><select id="ed-plan"><option ${m.plan==='Gold'?'selected':''}>Gold</option><option ${m.plan==='Platinum'?'selected':''}>Platinum</option></select></div>
         <div class="mf"><div class="mfl">Status</div><select id="ed-status"><option value="pending" ${(m.status||'pending')==='pending'?'selected':''}>Pending</option><option value="approved" ${m.status==='approved'?'selected':''}>Approved</option><option value="rejected" ${m.status==='rejected'?'selected':''}>Rejected</option></select></div>
+        <div class="mf full"><div class="mfl">Admin Access</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer;">
+              <input type="checkbox" id="ed-isadmin" ${m.isAdmin?'checked':''} style="accent-color:var(--n6);width:15px;height:15px;" />
+              Grant admin access to this member
+            </label>
+          </div>
+        </div>
       </div>
       <div class="macts">
         <button class="mbtn save" onclick="saveModal('${m.id}')"><i class="ti ti-device-floppy"></i> Save</button>
@@ -647,7 +687,8 @@
         firstName:document.getElementById('ed-fn').value.trim(),
         lastName:document.getElementById('ed-ln').value.trim(),
         plan:document.getElementById('ed-plan').value,
-        status:document.getElementById('ed-status').value
+        status:document.getElementById('ed-status').value,
+        isAdmin:document.getElementById('ed-isadmin').checked
       };
       await db.collection('members').doc(id).update(upd);
       Object.assign(m,upd); updateStats(); renderMembers(allMembers);
@@ -825,10 +866,27 @@
 
   document.getElementById('btn-add').addEventListener('click', addDoc);
 
+  // ── TOGGLE ADMIN ──
+  async function toggleAdmin(id, makeAdmin){
+    const m=allMembers.find(x=>x.id===id);
+    if(!m) return;
+    const msg = makeAdmin
+      ? `Grant admin access to ${m.firstName} ${m.lastName}?`
+      : `Remove admin access from ${m.firstName} ${m.lastName}?`;
+    if(!confirm(msg)) return;
+    try{
+      await db.collection('members').doc(id).update({isAdmin: makeAdmin});
+      m.isAdmin = makeAdmin;
+      renderMembers(allMembers);
+      toast(makeAdmin ? `${m.firstName} is now an admin.` : `Admin access removed from ${m.firstName}.`);
+    }catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
   // expose to window for dynamic onclick use
   window.doApprove  = doApprove;
   window.openDocModal = openDocModal;
   window.saveDocModal = saveDocModal;
+  window.toggleAdmin  = toggleAdmin;
   window.doReject   = doReject;
   window.doDelete   = doDelete;
   window.doDeleteDoc= doDeleteDoc;
