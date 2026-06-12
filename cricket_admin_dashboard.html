@@ -297,7 +297,7 @@
       <div class="sh"><span class="stl">Document Library</span></div>
       <div class="toolbar">
         <div class="tsrch"><i class="ti ti-search"></i><input type="text" id="dsearch" placeholder="Search documents…" /></div>
-        <select class="tsel" id="dcat"><option value="">All Categories</option><option>Rulebooks</option><option>Analytics</option><option>Training</option></select>
+        <select class="tsel" id="dcat"><option value="">All Categories</option><option>Training</option><option>Knowledge</option></select>
       </div>
       <div id="docs-wrap"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading…</div></div>
     </div>
@@ -326,7 +326,7 @@
             <div style="position:relative;"><i class="ti ti-tag" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
             <select id="d-cat" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
               <option value="">Select category…</option>
-              <option>Rulebooks</option><option>Analytics</option><option>Training</option>
+              <option>Training</option><option>Knowledge</option>
             </select></div>
           </div>
           <div>
@@ -360,8 +360,7 @@
           <span id="adlbl">Add to Library</span>
         </button>
       </div>
-      <div class="sh"><span class="stl">All Documents</span></div>
-      <div id="admin-dg"><div class="lcard">Loading…</div></div>
+
     </div>
 
     </div>
@@ -477,6 +476,12 @@
     document.getElementById('le').value='';
     document.getElementById('lp').value='';
     document.getElementById('lerr').classList.remove('on');
+    // Reset login button state
+    const btn=document.getElementById('lbtn');
+    btn.disabled=false;
+    document.getElementById('lspin').style.display='none';
+    document.getElementById('lic').style.display='';
+    document.getElementById('llbl').textContent='Sign in';
   });
 
   // ── TABS ──
@@ -489,7 +494,6 @@
     document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
     document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
     document.getElementById('pnl-adddoc').classList.add('on');
-    loadAdminDocs();
   });
   document.getElementById('tab-docs').addEventListener('click', function(){
     document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
@@ -768,7 +772,6 @@
       document.getElementById('d-type').value='pdf';
       document.getElementById('d-membership').value='Gold';
       await loadDocs();
-      loadAdminDocs();
       toast('Document added to library.');
     }catch(err){
       btn.disabled=false;
@@ -817,9 +820,8 @@
         <div class="mf full"><div class="mfl">OneDrive link</div><input id="ed-durl" value="${d.downloadUrl||''}" /></div>
         <div class="mf"><div class="mfl">Category</div>
           <select id="ed-dcat">
-            <option ${d.category==='Rulebooks'?'selected':''}>Rulebooks</option>
-            <option ${d.category==='Analytics'?'selected':''}>Analytics</option>
             <option ${d.category==='Training'?'selected':''}>Training</option>
+            <option ${d.category==='Knowledge'?'selected':''}>Knowledge</option>
           </select>
         </div>
         <div class="mf"><div class="mfl">File size</div><input id="ed-dsize" value="${d.size||''}" placeholder="e.g. 2.4 MB" /></div>
