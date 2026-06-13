@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricketVault — Admin Dashboard</title>
+  <title>VNK Classes — Admin Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
@@ -248,7 +248,7 @@
 <!-- LOGIN -->
 <div id="login-page" class="pg on">
   <div class="card">
-    <div class="card-hd"><div class="card-hd-in"><div class="bmark">C</div><div><div class="bname">CricketVault</div><div class="bsub">Admin Dashboard</div></div></div></div>
+    <div class="card-hd"><div class="card-hd-in"><div class="bmark">C</div><div><div class="bname">VNK Classes</div><div class="bsub">Admin Dashboard</div></div></div></div>
     <div class="card-bd">
       <div class="ftitle">Admin Sign In</div>
       <div class="fsub">Access restricted to administrators only.</div>
@@ -264,7 +264,7 @@
 <div id="portal" class="pg">
   <div class="adm-hdr">
     <div class="adm-hdr-in">
-      <div class="adm-brand"><div class="bmark">C</div><div class="adm-brand-txt"><h1>CricketVault</h1><p>Admin Dashboard</p></div></div>
+      <div class="adm-brand"><div class="bmark">C</div><div class="adm-brand-txt"><h1>VNK Classes</h1><p>Admin Dashboard</p></div></div>
       <div class="adm-hdr-r">
         <div class="abadge"><i class="ti ti-shield-check"></i> Admin</div>
         <button class="blgo" id="logoutBtn"><i class="ti ti-logout"></i> Sign out</button>
@@ -596,7 +596,7 @@
         member_name:`${m.firstName} ${m.lastName}`,
         member_email:m.email, member_plan:m.plan||'',
         status:'Approved',
-        message:'Congratulations! Your CricketVault membership has been approved. You can now sign in and access the full document library.',
+        message:'Congratulations! Your VNK Classes membership has been approved. You can now sign in and access the full document library.',
         to_email:m.email, admin_email:ADM_MAIL
       });
       toast('Member approved and notified by email.');
@@ -613,7 +613,7 @@
         member_name:`${m.firstName} ${m.lastName}`,
         member_email:m.email, member_plan:m.plan||'',
         status:'Rejected',
-        message:'We regret to inform you that your CricketVault membership application has not been approved at this time.',
+        message:'We regret to inform you that your VNK Classes membership application has not been approved at this time.',
         to_email:m.email, admin_email:ADM_MAIL
       });
       toast('Member rejected and notified by email.');
@@ -622,13 +622,54 @@
 
   async function doDelete(id){
     const m=allMembers.find(x=>x.id===id);
-    if(!m||!confirm(`Permanently delete ${m.firstName} ${m.lastName}? This cannot be undone.`)) return;
+    if(!m) return;
+    if(!confirm(`Permanently delete ${m.firstName} ${m.lastName}? This cannot be undone.`)) return;
     try{
       await db.collection('members').doc(id).delete();
       allMembers=allMembers.filter(x=>x.id!==id);
       updateStats(); renderMembers(allMembers);
-      toast('Member deleted.');
+      toast('Member deleted from database.');
+      // Show reminder to delete from Firebase Auth
+      showAuthDeleteReminder(m.email);
     } catch(err){ toast('Error: '+err.message,'err'); }
+  }
+
+  function showAuthDeleteReminder(email){
+    // Remove existing reminder if any
+    const existing = document.getElementById('auth-reminder');
+    if(existing) existing.remove();
+
+    const div = document.createElement('div');
+    div.id = 'auth-reminder';
+    div.style.cssText = `
+      position:fixed; top:1.5rem; left:50%; transform:translateX(-50%);
+      background:#fff; border:1.5px solid #c8a84b; border-radius:12px;
+      padding:1.25rem 1.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.15);
+      z-index:300; max-width:420px; width:90%; font-family:'DM Sans',sans-serif;
+    `;
+    div.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <i class="ti ti-alert-triangle" style="color:#c8a84b;font-size:20px;flex-shrink:0;margin-top:2px;"></i>
+        <div>
+          <div style="font-weight:600;font-size:14px;color:#1a1c20;margin-bottom:4px;">Action required</div>
+          <div style="font-size:13px;color:#40454f;line-height:1.5;margin-bottom:10px;">
+            Member deleted from database. To allow <strong>${email}</strong> to re-register, 
+            you must also delete them from Firebase Authentication.
+          </div>
+          <a href="https://console.firebase.google.com/project/vnkmembershipwebsite/authentication/users" 
+             target="_blank"
+             style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#0b1829;color:#fff;border-radius:7px;font-size:13px;text-decoration:none;font-weight:500;">
+            <i class="ti ti-external-link"></i> Open Firebase Auth Console
+          </a>
+          <button onclick="document.getElementById('auth-reminder').remove()" 
+            style="margin-left:8px;padding:8px 14px;background:none;border:0.5px solid #bd;border-radius:7px;font-size:13px;cursor:pointer;color:#7a7f8a;font-family:'DM Sans',sans-serif;">
+            Dismiss
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(div);
+    // Auto dismiss after 30 seconds
+    setTimeout(()=>{ if(document.getElementById('auth-reminder')) document.getElementById('auth-reminder').remove(); }, 30000);
   }
 
   async function doDeleteDoc(id){
@@ -733,7 +774,7 @@
     const csv=[hdrs.join(','),...rows].join('\n');
     const a=document.createElement('a');
     a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-    a.download='cricketvault_members_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.download='vnkclasses_members_'+new Date().toISOString().slice(0,10)+'.csv';
     a.click();
     toast('CSV exported.');
   });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricketVault — Members' Portal</title>
+  <title>VNK Classes — Members' Portal</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
@@ -348,7 +348,7 @@
 <!-- LOGIN -->
 <div id="login" class="pg on">
   <div class="acard">
-    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">CricketVault</div><div class="bsub">Members' Library</div></div></div></div>
+    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">VNK Classes</div><div class="bsub">Members' Library</div></div></div></div>
     <div class="acard-bd">
       <div class="fhd"><div class="ftitle">Welcome back</div><div class="fsub">Sign in to access your member library</div></div>
       <div class="ebox" id="lerr"><i class="ti ti-alert-circle"></i><span id="lerr-m"></span></div>
@@ -356,7 +356,7 @@
       <div class="fld"><label>Password</label><div class="fw"><i class="ti ti-lock fi"></i><input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="lp-e">Password cannot be empty.</div></div>
       <div class="frow"><label class="rem"><input type="checkbox" /> Keep me signed in</label><button class="lnk" onclick="go('forgot')">Forgot password?</button></div>
       <button class="btnp" id="lbtn" onclick="doLogin()"><div class="spin" id="lspin"></div><i class="ti ti-login" id="lic"></i><span id="llbl">Sign in to library</span></button>
-      <div class="rrow">Not a member yet? <a onclick="go('apply')">Apply for membership →</a></div>
+      <div class="rrow">Not a member yet? <a onclick="goToApply()">Apply for membership →</a></div>
     </div>
   </div>
 </div>
@@ -364,7 +364,7 @@
 <!-- FORGOT -->
 <div id="forgot" class="pg">
   <div class="acard">
-    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">CricketVault</div><div class="bsub">Members' Library</div></div></div></div>
+    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">VNK Classes</div><div class="bsub">Members' Library</div></div></div></div>
     <div class="acard-bd">
       <div class="fhd"><div class="ftitle">Reset your password</div><div class="fsub">Enter your account email and we'll send you a reset link.</div></div>
       <div class="okbox" id="fok"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Reset link sent! Check your inbox.</span></div>
@@ -455,9 +455,8 @@
             <div class="rvrow"><span class="rl2">Price</span><span class="rv2" id="rv-pr">₹2,499 / year</span></div>
             <div class="rvrow"><span class="rl2">Heard via</span><span class="rv2" id="rv-sr">—</span></div>
           </div>
-          <div class="tbox"><strong>Terms &amp; Conditions:</strong> By submitting you agree to CricketVault's membership terms. Membership is subject to approval. Documents are for personal non-commercial use only.</div>
+          <div class="tbox"><strong>Terms &amp; Conditions:</strong> By submitting you agree to VNK Classes's membership terms. Membership is subject to approval. Documents are for personal non-commercial use only.</div>
           <label class="ci"><input type="checkbox" id="tc" /> I agree to the Terms &amp; Conditions</label>
-          <label class="ci"><input type="checkbox" /> Send me seasonal updates</label>
           <div class="ebox" id="aerr" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="aerr-m"></span></div>
         </div>
 
@@ -498,7 +497,6 @@
     <div class="ntabs">
       <button class="ntab act" onclick="tab('lib',this)"><i class="ti ti-library"></i> Library</button>
       <button class="ntab" onclick="tab('mem',this)"><i class="ti ti-id-badge"></i> Membership</button>
-      <button class="ntab" onclick="tab('act',this)"><i class="ti ti-activity"></i> Activity</button>
     </div>
     <div class="cnt">
 
@@ -506,7 +504,7 @@
       <div class="pnl on" id="pnl-lib">
         <div style="height:1.25rem"></div>
         <div id="wbanner"></div>
-        <div class="fbn"><span class="fbn-ic"><i class="ti ti-clipboard-list"></i></span><div class="fbn-tx"><h3>ICC Playing Conditions 2024</h3><p>Updated rules — all formats included</p></div><button class="fbn-btn"><i class="ti ti-download"></i> Get it</button></div>
+
         <div class="sw"><i class="ti ti-search"></i><input class="si2" type="text" id="srch" placeholder="Search documents…" oninput="doSearch(this.value)" /></div>
         <div class="air" id="air"></div>
         <div class="fr">
@@ -559,12 +557,7 @@
       <!-- ADD DOCUMENT (OneDrive) -->
 
 
-      <!-- ACTIVITY -->
-      <div class="pnl" id="pnl-act">
-        <div style="height:1.25rem"></div>
-        <div class="sh"><span class="stl">Download History</span></div>
-        <div class="alist" id="alist"><div class="lcard">Loading…</div></div>
-      </div>
+
 
     </div>
   </div>
@@ -596,10 +589,66 @@
 
   // ── AUTH STATE ──
   onAuthStateChanged(auth,async user=>{
-    if(user){const p=await loadProfile(user.uid);showPortal(user,p);}
+    if(user){
+      const p=await loadProfile(user.uid);
+      // Only allow approved members into the portal
+      if(p && p.status==='approved'){
+        showPortal(user,p);
+      } else {
+        // Not approved yet — sign out and show message
+        await signOut(auth);
+        if(p && p.status==='pending'){
+          document.getElementById('lerr-m').textContent='Your membership is pending approval. You will be notified by email once approved.';
+        } else if(p && p.status==='rejected'){
+          document.getElementById('lerr-m').textContent='Your membership application was not approved. Please contact the administrator.';
+        } else {
+          document.getElementById('lerr-m').textContent='Your account is not yet approved. Please wait for admin approval.';
+        }
+        document.getElementById('lerr').classList.add('on');
+        go('login');
+      }
+    }
   });
 
   // ── UTILS ──
+  function goToApply(){
+    aStep=1; aTier='Gold';
+    // Reset steps
+    document.querySelectorAll('.astep').forEach(s=>s.classList.remove('on'));
+    const s1=document.getElementById('step1');
+    if(s1) s1.classList.add('on');
+    const anav=document.getElementById('anav');
+    if(anav) anav.style.display='flex';
+    const bnxt=document.getElementById('bnxt');
+    if(bnxt) bnxt.innerHTML='Continue <i class="ti ti-arrow-right"></i>';
+    const bprev=document.getElementById('bprev');
+    if(bprev) bprev.style.visibility='hidden';
+    // Clear all inputs
+    document.querySelectorAll('#apply input, #apply select').forEach(el=>{
+      if(el.type==='radio') el.checked=el.defaultChecked;
+      else if(el.type==='checkbox') el.checked=false;
+      else el.value='';
+    });
+    // Reset tier
+    document.querySelectorAll('.topt').forEach(t=>t.classList.remove('pk'));
+    const firstTopt=document.querySelector('.topt');
+    if(firstTopt) firstTopt.classList.add('pk');
+    // Clear errors
+    document.querySelectorAll('.aerr').forEach(e=>e.classList.remove('on'));
+    const aerrEl=document.getElementById('aerr');
+    if(aerrEl) aerrEl.classList.remove('on');
+    // Reset step bar
+    for(let i=1;i<=3;i++){
+      const sc=document.getElementById('sc'+i);
+      const sl=document.getElementById('sl'+i);
+      if(sc) sc.className = i===1 ? 'sc act' : 'sc';
+      if(sl) sl.className = i===1 ? 'sl act' : 'sl';
+      if(i<3){ const ln=document.getElementById('ln'+i); if(ln) ln.className='sln'; }
+    }
+    go('apply');
+  }
+
+  window.goToApply = goToApply;
   function go(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');}
   window.go=go;
   function busy(b,s,i,l,t){document.getElementById(b).disabled=true;document.getElementById(s).style.display='block';document.getElementById(i).style.display='none';document.getElementById(l).textContent=t;}
@@ -623,7 +672,18 @@
       const prof=await loadProfile(c.user.uid);
       document.getElementById('le').value='';document.getElementById('lp').value='';
       unbusy('lbtn','lspin','lic','llbl','Sign in to library');
-      showPortal(c.user,prof);
+      if(prof && prof.status==='approved'){
+        showPortal(c.user,prof);
+      } else {
+        await signOut(auth);
+        if(prof && prof.status==='pending'){
+          showE('lerr','lerr-m','Your membership is pending approval. You will be notified by email once approved.');
+        } else if(prof && prof.status==='rejected'){
+          showE('lerr','lerr-m','Your membership application was not approved. Please contact the administrator.');
+        } else {
+          showE('lerr','lerr-m','Your account is not yet approved. Please wait for admin approval.');
+        }
+      }
     }catch(err){
       unbusy('lbtn','lspin','lic','llbl','Sign in to library');
       showE('lerr','lerr-m',err.code==='auth/invalid-credential'?'Invalid email or password.':err.message);
@@ -724,6 +784,8 @@
           status:'pending',createdAt:serverTimestamp()
         });
         document.getElementById('sref').textContent='REF: CV-2025-'+Math.floor(10000+Math.random()*90000);
+        // Sign out immediately — user must wait for approval before logging in
+        await signOut(auth);
         showStep(4);
         // reset form fields so if user comes back form is clean
         setTimeout(()=>{
