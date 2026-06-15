@@ -538,9 +538,10 @@
     const wrap=document.getElementById('members-wrap');
     if(!list.length){ wrap.innerHTML=`<div class="empty"><i class="ti ti-users"></i>No members found.</div>`; return; }
     wrap.innerHTML=`<table class="mtbl">
-      <thead><tr><th>Member</th><th>Plan</th><th>Applied</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Member</th><th>Membership No.</th><th>Plan</th><th>Applied</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>${list.map(m=>`<tr>
         <td data-label="Member"><div class="mn">${m.firstName||''} ${m.lastName||''} ${m.isAdmin?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:#fffbf0;color:#c8a84b;border:0.5px solid #c8a84b;margin-left:4px;">Admin</span>':''}</div><div class="me">${m.email||''}</div></td>
+        <td data-label="Membership No.">${m.membershipNumber||'—'}</td>
         <td data-label="Plan">${m.plan||'—'}</td>
         <td data-label="Applied">${fmtDate(m.createdAt)}</td>
         <td data-label="Level">${m.level==='national'?'National':'State'}</td>
@@ -590,7 +591,10 @@
     const m=allMembers.find(x=>x.id===id);
     if(!m||!confirm(`Approve ${m.firstName} ${m.lastName}?`)) return;
     try{
-      await db.collection('members').doc(id).update({status:'approved'});
+      await db.collection('members').doc(id).update({
+        status:'approved',
+        approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
       m.status='approved'; updateStats(); renderMembers(allMembers);
       await emailjs.send(SVC, TPL_OK,{
         member_name:`${m.firstName} ${m.lastName}`,
@@ -695,7 +699,9 @@
         <div class="mf"><div class="mfl">Date of birth</div><div class="mfv">${m.dob||'—'}</div></div>
         <div class="mf"><div class="mfl">Country</div><div class="mfv">${m.country||'—'}</div></div>
         <div class="mf"><div class="mfl">Affiliation</div><div class="mfv">${m.affiliation||'—'}</div></div>
+        <div class="mf"><div class="mfl">Membership No.</div><div class="mfv" style="font-weight:700;color:var(--n6);letter-spacing:0.04em;">${m.membershipNumber||'—'}</div></div>
         <div class="mf"><div class="mfl">Applied</div><div class="mfv">${fmtDate(m.createdAt)}</div></div>
+        <div class="mf"><div class="mfl">Date of Membership</div><div class="mfv">${m.approvedAt?fmtDate(m.approvedAt):'Not yet approved'}</div></div>
         <div class="mf"><div class="mfl">Qualification</div><div class="mfv">${m.qualification||'—'}</div></div>
         <div class="mf"><div class="mfl">State</div><div class="mfv">${m.state||'—'}</div></div>
         <div class="mf"><div class="mfl">Level</div><div class="mfv">${m.level==='national'?'National':'State'}</div></div>

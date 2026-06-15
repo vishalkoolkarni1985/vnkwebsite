@@ -342,6 +342,7 @@
       .ntab { padding: 11px 10px; font-size: 11px; }
     }
   </style>
+
 </head>
 <body>
 
@@ -352,7 +353,7 @@
     <div class="acard-bd">
       <div class="fhd"><div class="ftitle">Welcome back</div><div class="fsub">Sign in to access your member library</div></div>
       <div class="ebox" id="lerr"><i class="ti ti-alert-circle"></i><span id="lerr-m"></span></div>
-      <div class="fld"><label>Email address</label><div class="fw"><i class="ti ti-mail fi"></i><input type="email" id="le" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="le-e">Please enter a valid email.</div></div>
+      <div class="fld"><label>Email or Membership Number</label><div class="fw"><i class="ti ti-user fi"></i><input type="text" id="le" placeholder="you@example.com or VK-2025-00001" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="le-e">Please enter a valid email or membership number.</div></div>
       <div class="fld"><label>Password</label><div class="fw"><i class="ti ti-lock fi"></i><input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="lp-e">Password cannot be empty.</div></div>
       <div class="frow"><label class="rem"><input type="checkbox" /> Keep me signed in</label><button class="lnk" onclick="go('forgot')">Forgot password?</button></div>
       <button class="btnp" id="lbtn" onclick="doLogin()"><div class="spin" id="lspin"></div><i class="ti ti-login" id="lic"></i><span id="llbl">Sign in to library</span></button>
@@ -400,7 +401,7 @@
             <div class="af"><label>Last name</label><div class="afw"><i class="ti ti-user"></i><input type="text" id="a-ln" placeholder="Sharma" /></div><div class="aerr" id="ae-ln">Required.</div></div>
             <div class="af"><label>Email address</label><div class="afw"><i class="ti ti-mail"></i><input type="email" id="a-em" placeholder="you@example.com" /></div><div class="aerr" id="ae-em">Valid email required.</div></div>
             <div class="af"><label>Phone number</label><div class="afw"><i class="ti ti-phone"></i><input type="tel" id="a-ph" placeholder="+91 98765 43210" /></div><div class="aerr" id="ae-ph">Required.</div></div>
-            <div class="af"><label>Date of birth</label><div class="afw"><i class="ti ti-calendar"></i><input type="date" id="a-db" /></div><div class="aerr" id="ae-db">Required.</div></div>
+            <div class="af"><label>Date of birth</label><div class="afw"><i class="ti ti-calendar"></i><input type="text" id="a-db" placeholder="DD/MM/YYYY" maxlength="10" oninput="fmtDob(this)" /></div><div class="aerr" id="ae-db">Enter valid date DD/MM/YYYY.</div></div>
             <div class="af"><label>Country</label><div class="afw"><i class="ti ti-map-pin"></i><input type="text" id="a-co" placeholder="e.g. India" /></div><div class="aerr" id="ae-co">Required.</div></div>
             <div class="af full"><label>Cricket affiliation (optional)</label><div class="afw"><i class="ti ti-building-stadium"></i><input type="text" id="a-af" placeholder="e.g. Mumbai Cricket Association" /></div></div>
           </div>
@@ -465,8 +466,13 @@
           <div class="asuc">
             <div class="sico"><i class="ti ti-circle-check"></i></div>
             <div class="stit">Application Submitted!</div>
-            <div class="ssub">Your account has been created. Our team will approve your membership within 2 business days. You can now sign in.</div>
-            <div class="sref" id="sref">REF: CV-2025-00000</div><br>
+            <div class="ssub">Your account has been created. Our team will approve your membership within 2 business days.</div>
+            <div style="background:var(--n9);border-radius:var(--rl);padding:1.25rem 2rem;margin-bottom:1.5rem;display:inline-block;min-width:240px;">
+              <div style="font-size:11px;color:var(--n2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Your Membership Number</div>
+              <div class="sref" id="sref" style="background:none;border:none;padding:0;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--g4);letter-spacing:0.06em;display:block;margin-bottom:0;">—</div>
+              <div style="font-size:11px;color:var(--n2);margin-top:6px;">Save this number — you can use it to sign in</div>
+            </div>
+            <br>
             <button class="bgl" onclick="go('login')"><i class="ti ti-login"></i> Go to Sign In</button>
           </div>
         </div>
@@ -520,6 +526,13 @@
       <!-- MEMBERSHIP -->
       <div class="pnl" id="pnl-mem">
         <div style="height:1.25rem"></div>
+        <div id="mem-number-banner" style="display:none;background:var(--n9);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;color:var(--n2);letter-spacing:0.06em;text-transform:uppercase;">Membership Number</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--g4);margin-top:2px;" id="mem-number-display">—</div>
+          </div>
+          <div style="font-size:28px;opacity:0.2;">🏏</div>
+        </div>
         <div class="sh"><span class="stl">Personal Information</span></div>
         <div class="mic">
           <div class="mfr2">
@@ -531,7 +544,7 @@
             <div class="mf"><label>Phone number</label><div class="miw"><i class="ti ti-phone"></i><input type="tel" id="m-ph" placeholder="+91 98765 43210" /></div></div>
           </div>
           <div class="mfr2">
-            <div class="mf"><label>Date of birth</label><div class="miw"><i class="ti ti-calendar"></i><input type="date" id="m-db" /></div></div>
+            <div class="mf"><label>Date of birth</label><div class="miw"><i class="ti ti-calendar"></i><input type="text" id="m-db" placeholder="DD/MM/YYYY" maxlength="10" oninput="fmtDob(this)" /></div></div>
             <div class="mf"><label>Country</label><div class="miw"><i class="ti ti-map-pin"></i><input type="text" id="m-co" placeholder="e.g. India" /></div></div>
           </div>
           <div class="mfr"><div class="mf"><label>Cricket affiliation (optional)</label><div class="miw"><i class="ti ti-building-stadium"></i><input type="text" id="m-af" placeholder="e.g. Mumbai Cricket Association" /></div></div></div>
@@ -544,6 +557,10 @@
               <div class="mf"><label>Year of passing — State</label><div class="miw"><i class="ti ti-calendar-event"></i><input type="number" id="m-yrs" placeholder="e.g. 2018" min="1950" max="2099" /></div></div>
               <div class="mf"><label>Year of passing — National</label><div class="miw"><i class="ti ti-calendar-event"></i><input type="number" id="m-yrn" placeholder="e.g. 2021" min="1950" max="2099" /></div></div>
             </div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Date of membership</label><div class="miw"><i class="ti ti-calendar-check"></i><input type="text" id="m-dom" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);" /></div></div>
+            <div class="mf"><label>Membership number</label><div class="miw"><i class="ti ti-id-badge"></i><input type="text" id="m-mno" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);font-weight:600;letter-spacing:0.04em;" /></div></div>
           </div>
           <div class="msave"><button class="bsave" onclick="saveProfile(this)"><i class="ti ti-device-floppy"></i> Save changes</button></div>
         </div>
@@ -564,16 +581,15 @@
 </div>
 
 <!-- Firebase -->
-<script type="module">
-  import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,
-          sendPasswordResetEmail,signOut,onAuthStateChanged}
-    from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import{getFirestore,doc,setDoc,getDoc,collection,getDocs,
-          addDoc as fsAddDoc,serverTimestamp,query,orderBy}
-    from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+  
+  
+  
 
-  const app=initializeApp({
+  const app=firebase.initializeApp({
     apiKey:"AIzaSyBuoMwXGficK4pjvYZDpCTFM3uTLwKfPxk",
     authDomain:"vnkmembershipwebsite.firebaseapp.com",
     projectId:"vnkmembershipwebsite",
@@ -581,14 +597,16 @@
     messagingSenderId:"560196378389",
     appId:"1:560196378389:web:f5b99063772cef747a131c"
   });
-  const auth=getAuth(app);
-  const db=getFirestore(app);
+  const auth=firebase.auth();
+  const db=firebase.firestore();
 
   const TPRICE={Gold:"₹2,499 / year",Platinum:"₹4,999 / year"};
   const TICO={pdf:"ti-file-type-pdf",xls:"ti-table",ppt:"ti-presentation",zip:"ti-file-zip",def:"ti-file"};
 
   // ── AUTH STATE ──
-  onAuthStateChanged(auth,async user=>{
+  let skipAuthState = false; // flag to skip during registration
+  auth.onAuthStateChanged(async user=>{
+    if(skipAuthState) return; // skip during registration flow
     if(user){
       const p=await loadProfile(user.uid);
       // Only allow approved members into the portal
@@ -596,7 +614,7 @@
         showPortal(user,p);
       } else {
         // Not approved yet — sign out and show message
-        await signOut(auth);
+        await auth.signOut();
         if(p && p.status==='pending'){
           document.getElementById('lerr-m').textContent='Your membership is pending approval. You will be notified by email once approved.';
         } else if(p && p.status==='rejected'){
@@ -620,7 +638,7 @@
     const anav=document.getElementById('anav');
     if(anav) anav.style.display='flex';
     const bnxt=document.getElementById('bnxt');
-    if(bnxt) bnxt.innerHTML='Continue <i class="ti ti-arrow-right"></i>';
+    if(bnxt){ bnxt.innerHTML='Continue <i class="ti ti-arrow-right"></i>'; bnxt.disabled=false; }
     const bprev=document.getElementById('bprev');
     if(bprev) bprev.style.visibility='hidden';
     // Clear all inputs
@@ -649,6 +667,15 @@
   }
 
   window.goToApply = goToApply;
+
+  // Auto-format DOB input as DD/MM/YYYY
+  function fmtDob(el){
+    let v = el.value.replace(/\D/g,'');
+    if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+    if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+    el.value = v.slice(0,10);
+  }
+  window.fmtDob = fmtDob;
   function go(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');}
   window.go=go;
   function busy(b,s,i,l,t){document.getElementById(b).disabled=true;document.getElementById(s).style.display='block';document.getElementById(i).style.display='none';document.getElementById(l).textContent=t;}
@@ -658,24 +685,36 @@
 
   // ── LOGIN ──
   window.doLogin=async function(){
-    const e=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
+    const input=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
     let ok=true;
     document.getElementById('le-e').classList.remove('on');
     document.getElementById('lp-e').classList.remove('on');
     hideE('lerr');
-    if(!e||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){document.getElementById('le-e').classList.add('on');ok=false;}
+    if(!input){document.getElementById('le-e').classList.add('on');ok=false;}
     if(!p){document.getElementById('lp-e').classList.add('on');ok=false;}
     if(!ok)return;
     busy('lbtn','lspin','lic','llbl','Signing in…');
     try{
-      const c=await signInWithEmailAndPassword(auth,e,p);
+      // Check if input is membership number (e.g. VK-2025-00001)
+      let e=input;
+      const isMemberNo=/^[A-Za-z]{2}-\d{4}-\d{5}$/.test(input);
+      if(isMemberNo){
+        const msnap=await db.collection('members').where('membershipNumber','==',input.toUpperCase()).limit(1).get();
+        if(msnap.empty){
+          unbusy('lbtn','lspin','lic','llbl','Sign in to library');
+          showE('lerr','lerr-m','Membership number not found.');
+          return;
+        }
+        e=msnap.docs[0].data().email;
+      }
+      const c=await auth.signInWithEmailAndPassword(e,p);
       const prof=await loadProfile(c.user.uid);
       document.getElementById('le').value='';document.getElementById('lp').value='';
       unbusy('lbtn','lspin','lic','llbl','Sign in to library');
       if(prof && prof.status==='approved'){
         showPortal(c.user,prof);
       } else {
-        await signOut(auth);
+        await auth.signOut();
         if(prof && prof.status==='pending'){
           showE('lerr','lerr-m','Your membership is pending approval. You will be notified by email once approved.');
         } else if(prof && prof.status==='rejected'){
@@ -690,7 +729,7 @@
     }
   };
 
-  window.doLogout=async function(){await signOut(auth);go('login');};
+  window.doLogout=async function(){await auth.signOut();go('login');};
 
   // ── FORGOT ──
   window.doForgot=async function(){
@@ -699,7 +738,7 @@
     if(!e||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){document.getElementById('fe-e').classList.add('on');return;}
     busy('fbtn','fspin','fic','flbl','Sending…');
     try{
-      await sendPasswordResetEmail(auth,e);
+      await auth.sendPasswordResetEmail(e);
       unbusy('fbtn','fspin','fic','flbl','Send reset link');
       document.getElementById('fform').style.display='none';
       document.getElementById('fok').classList.add('on');
@@ -732,7 +771,7 @@
       let ok=true;
       [['a-fn','ae-fn',v=>v.trim().length>0],['a-ln','ae-ln',v=>v.trim().length>0],
        ['a-em','ae-em',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)],
-       ['a-ph','ae-ph',v=>v.trim().length>0],['a-db','ae-db',v=>v.trim().length>0],
+       ['a-ph','ae-ph',v=>v.trim().length>0],
        ['a-co','ae-co',v=>v.trim().length>0]].forEach(([f,e,fn])=>{
         const el=document.getElementById(f),er=document.getElementById(e);
         if(!fn(el.value)){er.classList.add('on');ok=false;}else{er.classList.remove('on');}
@@ -765,10 +804,13 @@
       btn.disabled=true;btn.innerHTML='<div class="spin" style="display:block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;margin-right:6px"></div>Creating account…';
       const email=document.getElementById('a-em').value.trim(),pw=document.getElementById('a-pw').value;
       try{
-        const cred=await createUserWithEmailAndPassword(auth,email,pw);
+        skipAuthState = true; // prevent auth state from redirecting during registration
+        const cred=await auth.createUserWithEmailAndPassword(email,pw);
+        // Generate unique membership number
+        const membershipNumber = await generateMembershipNumber();
         const ql=document.querySelector('input[name="a-qual"]:checked');
         const lv=document.querySelector('input[name="a-lvl"]:checked');
-        await setDoc(doc(db,'members',cred.user.uid),{
+        await db.collection('members').doc(cred.user.uid).set({
           firstName:document.getElementById('a-fn').value.trim(),
           lastName:document.getElementById('a-ln').value.trim(),
           email,phone:document.getElementById('a-ph').value.trim(),
@@ -781,11 +823,13 @@
           yearPassingState:document.getElementById('a-yr-state').value||'',
           yearPassingNational:document.getElementById('a-yr-natl').value||'',
           plan:aTier,heardVia:document.getElementById('a-src').value,
-          status:'pending',createdAt:serverTimestamp()
+          membershipNumber:membershipNumber,
+          status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
-        document.getElementById('sref').textContent='REF: CV-2025-'+Math.floor(10000+Math.random()*90000);
+        document.getElementById('sref').textContent='Membership No: '+membershipNumber;
         // Sign out immediately — user must wait for approval before logging in
-        await signOut(auth);
+        await auth.signOut();
+        skipAuthState = false; // re-enable auth state handler
         showStep(4);
         // reset form fields so if user comes back form is clean
         setTimeout(()=>{
@@ -798,8 +842,12 @@
           const gld=document.querySelector('.topt');if(gld)gld.classList.add('pk');
         }, 500);
       }catch(err){
+        skipAuthState = false; // always reset flag on error
         btn.disabled=false;btn.innerHTML='Submit Application <i class="ti ti-send"></i>';
+        // Re-enable nav buttons too
+        document.getElementById('bprev').disabled=false;
         showE('aerr','aerr-m',err.code==='auth/email-already-in-use'?'An account with this email already exists. Please sign in instead.':err.message);
+        console.error('Registration error:',err);
       }
     }
   };
@@ -830,12 +878,51 @@
   }
 
   // ── PROFILE ──
-  async function loadProfile(uid){try{const s=await getDoc(doc(db,'members',uid));return s.exists()?s.data():null;}catch{return null;}}
+  // ── MEMBERSHIP NUMBER GENERATOR ──
+  async function generateMembershipNumber(){
+    const year = new Date().getFullYear();
+    const fn = document.getElementById('a-fn').value.trim();
+    const ln = document.getElementById('a-ln').value.trim();
+    const initials = ((fn[0]||'X')+(ln[0]||'X')).toUpperCase();
+    const counterRef = db.collection('counters').doc('membership');
+    try{
+      const num = await db.runTransaction(async tx=>{
+        const snap = await tx.get(counterRef);
+        const next = snap.exists ? (snap.data().count||0)+1 : 1;
+        tx.set(counterRef,{count:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        return next;
+      });
+      return initials+'-'+year+'-'+String(num).padStart(5,'0');
+    }catch(err){
+      console.error('Counter error:',err.message);
+      // Fallback: use timestamp
+      const num = Date.now().toString().slice(-5);
+      return initials+'-'+year+'-'+num;
+    }
+  }
+
+
+  async function loadProfile(uid){try{const s=await db.collection('members').doc(uid).get();return s.exists?s.data():null;}catch{return null;}}
   function populateProfile(p){
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
     s('m-fn',p.firstName);s('m-ln',p.lastName);s('m-em',p.email);s('m-ph',p.phone);
     s('m-db',p.dob);s('m-co',p.country);s('m-af',p.affiliation);s('m-st',p.state);
     s('m-yrs',p.yearPassingState);s('m-yrn',p.yearPassingNational);
+    // Membership date (from approvedAt or createdAt)
+    const domEl=document.getElementById('m-dom');
+    const mnoEl=document.getElementById('m-mno');
+    if(domEl){
+      const dateField = p.approvedAt || p.createdAt;
+      domEl.value = dateField?.toDate ? dateField.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—';
+    }
+    if(mnoEl) mnoEl.value = p.membershipNumber||'—';
+    // Show membership number banner
+    if(p.membershipNumber){
+      const banner=document.getElementById('mem-number-banner');
+      const display=document.getElementById('mem-number-display');
+      if(banner) banner.style.display='flex';
+      if(display) display.textContent=p.membershipNumber;
+    }
     document.querySelectorAll('input[name="m-qual"]').forEach(r=>r.checked=(r.value===(p.qualification||'qualified')));
     document.querySelectorAll('input[name="m-lvl"]').forEach(r=>r.checked=(r.value===(p.level||'state')));
   }
@@ -845,7 +932,7 @@
     const ql=document.querySelector('input[name="m-qual"]:checked');
     const lv=document.querySelector('input[name="m-lvl"]:checked');
     try{
-      await setDoc(doc(db,'members',user.uid),{
+      await db.collection('members').doc(user.uid).set({
         firstName:document.getElementById('m-fn').value.trim(),
         lastName:document.getElementById('m-ln').value.trim(),
         email:document.getElementById('m-em').value.trim(),
@@ -858,7 +945,7 @@
         level:lv?lv.value:'state',
         yearPassingState:document.getElementById('m-yrs').value||'',
         yearPassingNational:document.getElementById('m-yrn').value||'',
-        updatedAt:serverTimestamp()
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
       },{merge:true});
       btn.innerHTML='<i class="ti ti-circle-check"></i> Saved!';
       btn.style.background='var(--g5)';btn.style.color='var(--n9)';
@@ -870,8 +957,7 @@
   let allDocs=[],cFilt='All',cSrch='',memberPlan='Gold';
   async function loadDocs(){
     try{
-      const q=query(collection(db,'documents'),orderBy('createdAt','desc'));
-      const snap=await getDocs(q);
+      const snap=await db.collection('documents').orderBy('createdAt','desc').get();
       allDocs=snap.docs.map(d=>({id:d.id,...d.data()}));
       // count only docs accessible to this member
       const accessibleCount = allDocs.filter(d=>{
@@ -933,10 +1019,10 @@
     if(!cat){showE('adm-err','adm-err-m','Please select a category.');return;}
     busy('btn-add','aspin','adic','adlbl','Adding…');
     try{
-      await fsAddDoc(collection(db,'documents'),{
+      await db.collection('documents').add({
         displayName:name,category:cat,size,fileType:type,
         downloadUrl:url,addedBy:auth.currentUser?.uid||'admin',
-        createdAt:serverTimestamp()
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
       });
       unbusy('btn-add','aspin','adic','adlbl','Add to Library');
       document.getElementById('adm-ok').classList.add('on');
