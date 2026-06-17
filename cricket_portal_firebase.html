@@ -526,12 +526,18 @@
       <!-- MEMBERSHIP -->
       <div class="pnl" id="pnl-mem">
         <div style="height:1.25rem"></div>
-        <div id="mem-number-banner" style="display:none;background:var(--n9);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="font-size:11px;color:var(--n2);letter-spacing:0.06em;text-transform:uppercase;">Membership Number</div>
-            <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--g4);margin-top:2px;" id="mem-number-display">—</div>
+        <div id="mem-number-banner" style="display:none;background:var(--n9);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;color:var(--n2);letter-spacing:0.06em;text-transform:uppercase;">Membership Number</div>
+              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--g4);margin-top:2px;" id="mem-number-display">—</div>
+            </div>
+            <div style="font-size:28px;opacity:0.2;">🏏</div>
           </div>
-          <div style="font-size:28px;opacity:0.2;">🏏</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:0.9rem;padding-top:0.9rem;border-top:0.5px solid rgba(255,255,255,0.12);">
+            <span id="payment-status-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.03em;">—</span>
+            <span style="font-size:12px;color:var(--n2);" id="payment-valid-text">—</span>
+          </div>
         </div>
         <div class="sh"><span class="stl">Personal Information</span></div>
         <div class="mic">
@@ -561,6 +567,13 @@
           <div class="mfr2">
             <div class="mf"><label>Date of membership</label><div class="miw"><i class="ti ti-calendar-check"></i><input type="text" id="m-dom" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);" /></div></div>
             <div class="mf"><label>Membership number</label><div class="miw"><i class="ti ti-id-badge"></i><input type="text" id="m-mno" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);font-weight:600;letter-spacing:0.04em;" /></div></div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Payment date</label><div class="miw"><i class="ti ti-cash"></i><input type="text" id="m-paydate" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);" /></div></div>
+            <div class="mf"><label>Membership expiry</label><div class="miw"><i class="ti ti-calendar-x"></i><input type="text" id="m-expiry" placeholder="—" readonly style="background:var(--bg2);cursor:default;" /></div></div>
+          </div>
+          <div id="expiry-warning" style="display:none;background:#fdf0f0;border:0.5px solid #e57373;border-radius:var(--r);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <i class="ti ti-alert-circle"></i><span id="expiry-warning-text"></span>
           </div>
           <div class="msave"><button class="bsave" onclick="saveProfile(this)"><i class="ti ti-device-floppy"></i> Save changes</button></div>
         </div>
@@ -872,6 +885,12 @@
         if(t===plan){card.classList.add('cur');badge.textContent='Current plan';}
         else{card.classList.remove('cur');badge.textContent='Upgrade';}
       });
+      // Determine payment validity
+      if(profile.membershipExpiry?.toDate){
+        paymentValid = profile.membershipExpiry.toDate() > new Date();
+      } else {
+        paymentValid = false;
+      }
     }
     await loadDocs();
     loadActivity();
@@ -916,6 +935,40 @@
       domEl.value = dateField?.toDate ? dateField.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—';
     }
     if(mnoEl) mnoEl.value = p.membershipNumber||'—';
+    // Payment date
+    const paydateEl=document.getElementById('m-paydate');
+    const expiryEl=document.getElementById('m-expiry');
+    const expiryWarn=document.getElementById('expiry-warning');
+    const expiryWarnTxt=document.getElementById('expiry-warning-text');
+    if(paydateEl) paydateEl.value = p.paymentDate?.toDate ? p.paymentDate.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—';
+    const badgeEl=document.getElementById('payment-status-badge');
+    const validTxtEl=document.getElementById('payment-valid-text');
+    if(expiryEl && p.membershipExpiry?.toDate){
+      const expDate = p.membershipExpiry.toDate();
+      expiryEl.value = expDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+      const now = new Date();
+      const daysLeft = Math.ceil((expDate-now)/(1000*60*60*24));
+      if(expDate < now){
+        expiryEl.style.color='#c0392b';
+        if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='Your membership has expired. Please contact the administrator to renew.'; expiryWarn.style.background='#fdf0f0'; expiryWarn.style.borderColor='#e57373'; expiryWarnTxt.style.color='#c0392b'; expiryWarn.querySelector('i').style.color='#c0392b'; }
+        if(badgeEl){ badgeEl.textContent='Expired'; badgeEl.style.background='#3a1515'; badgeEl.style.color='#ff8a8a'; }
+        if(validTxtEl) validTxtEl.textContent='Expired on '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      } else if(daysLeft <= 30){
+        expiryEl.style.color='#c45a0e';
+        if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='Your membership expires in '+daysLeft+' day(s). Please renew soon.'; expiryWarn.style.background='#fff1e6'; expiryWarn.style.borderColor='#f4a261'; expiryWarnTxt.style.color='#c45a0e'; expiryWarn.querySelector('i').style.color='#c45a0e'; }
+        if(badgeEl){ badgeEl.textContent='Expiring Soon'; badgeEl.style.background='#3a2a10'; badgeEl.style.color='#ffc078'; }
+        if(validTxtEl) validTxtEl.textContent='Valid till '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      } else {
+        expiryEl.style.color='#1a7a4a';
+        if(expiryWarn) expiryWarn.style.display='none';
+        if(badgeEl){ badgeEl.textContent='Active'; badgeEl.style.background='#16331f'; badgeEl.style.color='#7dd99f'; }
+        if(validTxtEl) validTxtEl.textContent='Valid till '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      }
+    } else {
+      if(badgeEl){ badgeEl.textContent='Payment Pending'; badgeEl.style.background='#3a2a10'; badgeEl.style.color='#ffc078'; }
+      if(validTxtEl) validTxtEl.textContent='No active payment on record';
+      if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='No payment recorded yet. Documents will be unavailable until payment is confirmed.'; expiryWarn.style.background='#fff1e6'; expiryWarn.style.borderColor='#f4a261'; expiryWarnTxt.style.color='#c45a0e'; expiryWarn.querySelector('i').style.color='#c45a0e'; }
+    }
     // Show membership number banner
     if(p.membershipNumber){
       const banner=document.getElementById('mem-number-banner');
@@ -954,7 +1007,7 @@
   };
 
   // ── DOCUMENTS ──
-  let allDocs=[],cFilt='All',cSrch='',memberPlan='Gold';
+  let allDocs=[],cFilt='All',cSrch='',memberPlan='Gold',paymentValid=false;
   async function loadDocs(){
     try{
       const snap=await db.collection('documents').orderBy('createdAt','desc').get();

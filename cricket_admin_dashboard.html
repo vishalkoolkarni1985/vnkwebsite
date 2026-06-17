@@ -375,6 +375,54 @@
   </div>
 </div>
 
+<!-- PAYMENT MODAL -->
+<div class="moverlay" id="payment-modal">
+  <div class="modal" style="max-width:460px;">
+    <div class="mhd">
+      <h2 id="payment-modal-title">Record Payment</h2>
+      <button class="mclose" onclick="closePaymentModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbd">
+      <div class="mfg">
+        <div class="mf full">
+          <div class="mfl">Member</div>
+          <div class="mfv" id="payment-member-name" style="font-size:15px;color:var(--td);">—</div>
+        </div>
+        <div class="mf">
+          <div class="mfl">Payment date</div>
+          <input type="date" id="pay-date" onchange="updateExpiryPreview()" style="width:100%;padding:8px 10px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;" />
+        </div>
+        <div class="mf">
+          <div class="mfl">Amount (₹)</div>
+          <input type="number" id="pay-amount" placeholder="e.g. 2499" style="width:100%;padding:8px 10px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;" />
+        </div>
+        <div class="mf full">
+          <div class="mfl">Payment reference number</div>
+          <input type="text" id="pay-ref" placeholder="e.g. UPI/TXN123456" style="width:100%;padding:8px 10px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;" />
+        </div>
+        <div class="mf full">
+          <div class="mfl">Membership duration</div>
+          <select id="pay-duration" onchange="updateExpiryPreview()" style="width:100%;padding:8px 10px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;appearance:none;">
+            <option value="12">1 Year (12 months)</option>
+            <option value="24">2 Years (24 months)</option>
+            <option value="36">3 Years (36 months)</option>
+            <option value="6">6 Months</option>
+          </select>
+        </div>
+        <div class="mf full" id="expiry-preview" style="background:var(--n0);display:none;">
+          <div class="mfl">Expiry date (calculated)</div>
+          <div class="mfv" id="expiry-preview-val" style="color:var(--n6);font-size:14px;">—</div>
+        </div>
+      </div>
+      <div class="ebox" id="pay-err" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="pay-err-m"></span></div>
+      <div class="macts">
+        <button class="mbtn save" id="pay-save-btn" onclick="savePayment()"><i class="ti ti-cash"></i> Save Payment</button>
+        <button class="mbtn" style="background:none;border:0.5px solid var(--bd);color:var(--tm);" onclick="closePaymentModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="ti ti-circle-check" id="toast-ic"></i><span id="toast-msg"></span></div>
 
@@ -545,12 +593,16 @@
         <td data-label="Plan">${m.plan||'—'}</td>
         <td data-label="Applied">${fmtDate(m.createdAt)}</td>
         <td data-label="Level">${m.level==='national'?'National':'State'}</td>
-        <td data-label="Status"><span class="sbdg ${m.status||'pending'}">${cap(m.status||'pending')}</span></td>
+        <td data-label="Status">
+          <span class="sbdg ${m.status||'pending'}">${cap(m.status||'pending')}</span>
+          ${m.membershipExpiry?new Date(m.membershipExpiry.seconds*1000)<new Date()?'<span class="sbdg rejected" style="margin-left:4px;font-size:10px;">Expired</span>':new Date(m.membershipExpiry.seconds*1000)<new Date(Date.now()+30*24*60*60*1000)?'<span class="sbdg pending" style="margin-left:4px;font-size:10px;">Expiring soon</span>':'':''}
+        </td>
         <td data-label="Actions"><div class="abts">
           <button class="abt" onclick="openModal('${m.id}')"><i class="ti ti-eye"></i> View</button>
           ${m.status!=='approved'?`<button class="abt apr" onclick="doApprove('${m.id}')"><i class="ti ti-check"></i> Approve</button>`:''}
           ${m.status!=='rejected'?`<button class="abt rjt" onclick="doReject('${m.id}')"><i class="ti ti-x"></i> Reject</button>`:''}
           ${m.isAdmin?`<button class="abt" style="border-color:#c8a84b;color:#c8a84b;background:#fffbf0;" onclick="toggleAdmin('${m.id}',false)"><i class="ti ti-shield-off"></i> Remove Admin</button>`:`<button class="abt" style="border-color:#2558a8;color:#2558a8;background:#eaf0f8;" onclick="toggleAdmin('${m.id}',true)"><i class="ti ti-shield-check"></i> Make Admin</button>`}
+          <button class="abt" style="border-color:#1a7a4a;color:#1a7a4a;background:#edfaf3;" onclick="openPaymentModal('${m.id}')"><i class="ti ti-cash"></i> Payment</button>
           <button class="abt del" onclick="doDelete('${m.id}')"><i class="ti ti-trash"></i></button>
         </div></td>
       </tr>`).join('')}</tbody>
@@ -715,6 +767,17 @@
               <input type="checkbox" id="ed-isadmin" ${m.isAdmin?'checked':''} style="accent-color:var(--n6);width:15px;height:15px;" />
               Grant admin access to this member
             </label>
+          </div>
+        </div>
+      </div>
+      <div class="mfg" style="margin-top:1rem;">
+        <div class="mf full" style="background:#edfaf3;border:0.5px solid #6fcf97;">
+          <div class="mfl" style="color:#1a7a4a;">Payment Information</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+            <div><div style="font-size:11px;color:#7a7f8a;">Payment Date</div><div class="mfv">${m.paymentDate?new Date(m.paymentDate.seconds*1000).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}):'Not recorded'}</div></div>
+            <div><div style="font-size:11px;color:#7a7f8a;">Amount</div><div class="mfv">${m.paymentAmount?'₹'+m.paymentAmount:'—'}</div></div>
+            <div><div style="font-size:11px;color:#7a7f8a;">Reference No.</div><div class="mfv">${m.paymentRef||'—'}</div></div>
+            <div><div style="font-size:11px;color:#7a7f8a;">Expiry Date</div><div class="mfv" style="color:${m.membershipExpiry&&new Date(m.membershipExpiry.seconds*1000)<new Date()?'#c0392b':'#1a7a4a'}">${m.membershipExpiry?new Date(m.membershipExpiry.seconds*1000).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}):'—'}</div></div>
           </div>
         </div>
       </div>
@@ -931,9 +994,94 @@
     }catch(err){ toast('Error: '+err.message,'err'); }
   }
 
+  // ── PAYMENT ──
+  let currentPaymentMemberId = null;
+
+  function openPaymentModal(id){
+    const m = allMembers.find(x=>x.id===id);
+    if(!m) return;
+    currentPaymentMemberId = id;
+    document.getElementById('payment-modal-title').textContent = 'Record Payment';
+    document.getElementById('payment-member-name').textContent = (m.firstName||'')+' '+(m.lastName||'')+' · '+(m.membershipNumber||'');
+    // Pre-fill with existing values if any
+    if(m.paymentDate) document.getElementById('pay-date').value = new Date(m.paymentDate.seconds*1000).toISOString().slice(0,10);
+    else document.getElementById('pay-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('pay-amount').value = m.paymentAmount||'';
+    document.getElementById('pay-ref').value = m.paymentRef||'';
+    document.getElementById('pay-duration').value = '12';
+    document.getElementById('pay-err').classList.remove('on');
+    updateExpiryPreview();
+    document.getElementById('payment-modal').classList.add('on');
+  }
+
+  function closePaymentModal(){
+    document.getElementById('payment-modal').classList.remove('on');
+    currentPaymentMemberId = null;
+  }
+
+  function updateExpiryPreview(){
+    const dateVal = document.getElementById('pay-date').value;
+    const duration = parseInt(document.getElementById('pay-duration').value)||12;
+    if(!dateVal) return;
+    const expiry = new Date(dateVal);
+    expiry.setMonth(expiry.getMonth() + duration);
+    document.getElementById('expiry-preview').style.display='block';
+    document.getElementById('expiry-preview-val').textContent = expiry.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  }
+
+  async function savePayment(){
+    const id = currentPaymentMemberId;
+    if(!id) return;
+    const dateVal = document.getElementById('pay-date').value;
+    const amount  = document.getElementById('pay-amount').value;
+    const ref     = document.getElementById('pay-ref').value.trim();
+    const duration= parseInt(document.getElementById('pay-duration').value)||12;
+    document.getElementById('pay-err').classList.remove('on');
+    if(!dateVal){ document.getElementById('pay-err-m').textContent='Please enter payment date.'; document.getElementById('pay-err').classList.add('on'); return; }
+    if(!amount){  document.getElementById('pay-err-m').textContent='Please enter payment amount.'; document.getElementById('pay-err').classList.add('on'); return; }
+    if(!ref){     document.getElementById('pay-err-m').textContent='Please enter payment reference.'; document.getElementById('pay-err').classList.add('on'); return; }
+
+    const payDate = new Date(dateVal);
+    const expDate = new Date(dateVal);
+    expDate.setMonth(expDate.getMonth() + duration);
+
+    const btn = document.getElementById('pay-save-btn');
+    btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:sp 0.6s linear infinite;display:inline-block"></i> Saving…';
+
+    try{
+      await db.collection('members').doc(id).update({
+        paymentDate:   firebase.firestore.Timestamp.fromDate(payDate),
+        paymentAmount: parseFloat(amount),
+        paymentRef:    ref,
+        paymentDuration: duration,
+        membershipExpiry: firebase.firestore.Timestamp.fromDate(expDate),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      const m = allMembers.find(x=>x.id===id);
+      if(m){
+        m.paymentDate = {seconds: Math.floor(payDate.getTime()/1000)};
+        m.paymentAmount = parseFloat(amount);
+        m.paymentRef = ref;
+        m.membershipExpiry = {seconds: Math.floor(expDate.getTime()/1000)};
+      }
+      closePaymentModal();
+      renderMembers(allMembers);
+      toast('Payment recorded. Expiry: '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}));
+    }catch(err){
+      document.getElementById('pay-err-m').textContent='Error: '+err.message;
+      document.getElementById('pay-err').classList.add('on');
+    }finally{
+      btn.disabled=false; btn.innerHTML='<i class="ti ti-cash"></i> Save Payment';
+    }
+  }
+
   // expose to window for dynamic onclick use
   window.doApprove  = doApprove;
   window.openDocModal = openDocModal;
+  window.openPaymentModal = openPaymentModal;
+  window.closePaymentModal = closePaymentModal;
+  window.savePayment = savePayment;
+  window.updateExpiryPreview = updateExpiryPreview;
   window.saveDocModal = saveDocModal;
   window.toggleAdmin  = toggleAdmin;
   window.doReject   = doReject;
