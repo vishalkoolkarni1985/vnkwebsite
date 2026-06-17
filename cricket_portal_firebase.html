@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VNK Classes — Members' Portal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --n9:#0b1829;--n8:#112240;--n7:#1a3358;--n6:#1e4080;--n4:#2558a8;
+      --n2:#7aa4d8;--n1:#b8cfe8;--n0:#eaf0f8;
+      --g5:#c8a84b;--g4:#d4b96a;
+      --cr:#f8fafc;--td:#1a1c20;--tm:#40454f;--tx:#7a7f8a;
+      --bg:#fff;--bg2:#f4f5f7;--bd:rgba(0,0,0,0.12);
+      --r:8px;--rl:14px;
+    }
+    body{font-family:'DM Sans',sans-serif;color:var(--td);background:var(--cr);min-height:100vh;}
+    .pg{display:none;}.pg.on{display:flex;}
+    #portal.on,#apply.on{display:block;}
+    #login,#forgot{min-height:100vh;align-items:center;justify-content:center;background:var(--cr);padding:2rem 1rem;}
+
+    /* ── AUTH CARD ── */
+    .acard{width:100%;max-width:440px;background:var(--bg);border-radius:18px;box-shadow:0 8px 48px rgba(11,24,41,0.14);overflow:hidden;}
+    .acard-hd{background:var(--n9);padding:1.75rem 2rem;position:relative;overflow:hidden;}
+    .acard-hd::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,0.02) 20px,rgba(255,255,255,0.02) 21px);}
+    .acard-hd-in{position:relative;z-index:1;display:flex;align-items:center;gap:12px;}
+    .bmark{width:40px;height:40px;border-radius:50%;background:var(--g5);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--n9);flex-shrink:0;}
+    .bname{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#fff;}
+    .bsub{font-size:11px;color:var(--n2);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
+    .acard-bd{padding:2rem;}
+    .fhd{margin-bottom:1.5rem;}
+    .ftitle{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--td);}
+    .fsub{font-size:13px;color:var(--tx);margin-top:4px;line-height:1.5;}
+    .fld{margin-bottom:1rem;}
+    .fld label{display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;letter-spacing:0.03em;}
+    .fw{position:relative;}
+    .fw .fi{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx);pointer-events:none;}
+    .fw input{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:14px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;transition:border-color 0.15s;}
+    .fw input:focus{outline:none;border-color:var(--n4);}
+    .fw input::placeholder{color:var(--tx);opacity:0.6;}
+    .ferr{font-size:11px;color:#c0392b;margin-top:4px;display:none;}.ferr.on{display:block;}
+    .frow{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+    .rem{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx);cursor:pointer;}
+    .rem input[type=checkbox]{accent-color:var(--n6);width:13px;height:13px;}
+    .lnk{font-size:12px;color:var(--n6);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;}
+    .lnk:hover{color:var(--n4);}
+    .btnp{width:100%;padding:10px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.15s;}
+    .btnp:hover{background:var(--n7);}
+    .btnp:disabled{opacity:0.6;cursor:not-allowed;}
+    .rrow{text-align:center;margin-top:1.25rem;font-size:12px;color:var(--tx);}
+    .rrow a{color:var(--n6);text-decoration:none;font-weight:500;cursor:pointer;}
+    .okbox{background:#edfaf3;border:0.5px solid #6fcf97;border-radius:var(--r);padding:12px 14px;font-size:13px;color:#1a6b40;margin-bottom:1rem;display:none;align-items:center;gap:8px;line-height:1.5;}
+    .okbox.on{display:flex;}
+    .ebox{background:#fdf0f0;border:0.5px solid #e57373;border-radius:var(--r);padding:10px 12px;font-size:12px;color:#c0392b;margin-bottom:1rem;display:none;align-items:center;gap:6px;}
+    .ebox.on{display:flex;}
+    .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;display:none;}
+    @keyframes sp{to{transform:rotate(360deg);}}
+
+    /* ── APPLY ── */
+    #apply{min-height:100vh;background:var(--cr);padding:2rem 1rem;}
+    .awrap{width:100%;max-width:780px;margin:0 auto;}
+    .abk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--n6);cursor:pointer;margin-bottom:1.5rem;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;}
+    .abk:hover{color:var(--n4);}
+    .acard2{background:var(--bg);border-radius:18px;overflow:hidden;box-shadow:0 8px 48px rgba(11,24,41,0.13);}
+    .ahd{background:var(--n9);padding:2rem;position:relative;overflow:hidden;}
+    .ahd::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,0.018) 20px,rgba(255,255,255,0.018) 21px);}
+    .ahd-in{position:relative;z-index:1;display:flex;align-items:center;gap:14px;}
+    .ahd-in .bmark{width:36px;height:36px;font-size:16px;}
+    .ahd-txt h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#fff;}
+    .ahd-txt p{font-size:12px;color:var(--n2);margin-top:3px;}
+    .sbar{display:flex;align-items:center;padding:1.1rem 2rem;border-bottom:0.5px solid var(--bd);}
+    .si{display:flex;align-items:center;gap:7px;}
+    .sc{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;border:1.5px solid var(--bd);color:var(--tx);background:var(--bg);transition:all 0.3s;}
+    .sc.act{background:var(--n9);color:#fff;border-color:var(--n9);}
+    .sc.dn{background:var(--g5);color:var(--n9);border-color:var(--g5);}
+    .sl{font-size:12px;color:var(--tx);white-space:nowrap;}
+    .sl.act{color:var(--n7);font-weight:500;}
+    .sln{flex:1;height:1px;background:var(--bd);margin:0 10px;transition:background 0.3s;}
+    .sln.dn{background:var(--g5);}
+    .abdy{padding:2rem;}
+    .astep{display:none;}.astep.on{display:block;}
+    .asec{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--td);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--bd);}
+    .fg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .fg2 .full{grid-column:1/-1;}
+    .af label{display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;letter-spacing:0.03em;}
+    .afw{position:relative;}
+    .afw i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;}
+    .af input,.af select{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;transition:border-color 0.15s;}
+    .af select{appearance:none;}
+    .af input:focus,.af select:focus{outline:none;border-color:var(--n4);}
+    .af input::placeholder{color:var(--tx);opacity:0.6;}
+    .aerr{font-size:11px;color:#c0392b;margin-top:4px;display:none;}.aerr.on{display:block;}
+    .tpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0;}
+    .topt{border:1.5px solid var(--bd);border-radius:var(--rl);padding:1rem;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--bg);}
+    .topt:hover{border-color:var(--n4);background:var(--n0);}
+    .topt.pk{border-color:var(--n6);background:var(--n0);}
+    .topt .ti2{font-size:22px;margin-bottom:5px;}
+    .topt .tn{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:var(--td);}
+    .topt .tp{font-size:12px;color:var(--n6);margin-top:2px;font-weight:500;}
+    .topt .tk{font-size:11px;color:var(--tx);margin-top:4px;line-height:1.4;}
+    .rvblk{background:var(--n0);border:0.5px solid var(--n1);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1rem;}
+    .rvblk h4{font-size:11px;font-weight:600;color:var(--n7);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+    .rvrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--n1);font-size:13px;}
+    .rvrow:last-child{border-bottom:none;}
+    .rl2{color:var(--tx);}.rv2{color:var(--td);font-weight:500;text-align:right;}
+    .tbox{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--tx);line-height:1.6;margin-bottom:1rem;max-height:90px;overflow-y:auto;}
+    .ci{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tm);cursor:pointer;margin-bottom:8px;}
+    .ci input[type=checkbox]{accent-color:var(--n6);width:14px;height:14px;flex-shrink:0;}
+    .anav{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;border-top:0.5px solid var(--bd);}
+    .bprev{padding:9px 20px;background:none;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--tm);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+    .bprev:hover{border-color:var(--n4);color:var(--n7);}
+    .bnxt{padding:9px 24px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+    .bnxt:hover{background:var(--n7);}
+    .bnxt:disabled{opacity:0.6;cursor:not-allowed;}
+    .asuc{text-align:center;padding:3rem 2rem;}
+    .sico{width:64px;height:64px;border-radius:50%;background:var(--n0);border:2px solid var(--g5);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;color:var(--g5);}
+    .stit{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--td);margin-bottom:8px;}
+    .ssub{font-size:14px;color:var(--tx);line-height:1.6;max-width:380px;margin:0 auto 1.5rem;}
+    .sref{font-size:13px;color:var(--n7);background:var(--n0);border:0.5px solid var(--n1);border-radius:var(--r);display:inline-block;padding:6px 18px;margin-bottom:1.5rem;letter-spacing:0.04em;}
+    .bgl{padding:10px 28px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .bgl:hover{background:var(--n7);}
+
+    /* ── PORTAL ── */
+    .portal{max-width:720px;margin:0 auto;padding:0 0 3rem;}
+    .phd{background:var(--n9);padding:1.5rem 1.5rem 1rem;position:relative;overflow:hidden;}
+    .phd::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(255,255,255,0.02) 18px,rgba(255,255,255,0.02) 19px);}
+    .phd-in{position:relative;z-index:1;}
+    .phd-top{display:flex;align-items:center;justify-content:space-between;}
+    .loa{display:flex;align-items:center;gap:10px;}
+    .lmk{width:38px;height:38px;border-radius:50%;background:var(--g5);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--n9);}
+    .ltx h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#fff;letter-spacing:0.02em;}
+    .ltx p{font-size:11px;color:var(--n2);letter-spacing:0.08em;text-transform:uppercase;margin-top:1px;}
+    .phd-ac{display:flex;align-items:center;gap:10px;}
+    .mbadge{background:rgba(200,168,75,0.15);border:0.5px solid var(--g5);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--g4);display:flex;align-items:center;gap:5px;}
+    .blgo{background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--n2);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;}
+    .blgo:hover{background:rgba(255,255,255,0.14);color:#fff;}
+    .hsts{display:flex;gap:1.5rem;margin-top:1.25rem;padding-top:1rem;border-top:0.5px solid rgba(255,255,255,0.1);}
+    .sv{font-size:20px;font-weight:500;color:var(--g4);font-family:'Playfair Display',serif;}
+    .sl2{font-size:11px;color:var(--n2);margin-top:1px;letter-spacing:0.04em;}
+    .ntabs{display:flex;background:var(--n8);border-bottom:1px solid var(--n7);overflow-x:auto;}
+    .ntab{padding:12px 18px;font-size:13px;color:var(--n2);cursor:pointer;border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;}
+    .ntab.act{color:var(--g4);border-bottom-color:var(--g5);}
+    .ntab:hover:not(.act){color:#fff;}
+    .cnt{padding:1.25rem 1.25rem 0;}
+    .sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+    .stl{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--td);}
+    .sa{font-size:12px;color:var(--n6);cursor:pointer;text-decoration:none;}
+    .sw{position:relative;margin-bottom:1.25rem;}
+    .sw i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx);pointer-events:none;}
+    .si2{width:100%;padding:10px 12px 10px 36px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:14px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;}
+    .si2:focus{outline:none;border-color:var(--n4);}
+    .si2::placeholder{color:var(--tx);}
+    .fr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;}
+    .fp{padding:5px 13px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--bd);background:var(--bg);color:var(--tm);transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+    .fp.act{background:var(--n9);color:#fff;border-color:var(--n9);}
+    .fp:hover:not(.act){border-color:var(--n6);color:var(--n7);}
+    .dg{display:flex;flex-direction:column;gap:10px;}
+    .dc{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;display:flex;align-items:center;gap:14px;transition:border-color 0.15s,background 0.15s;}
+    .dc:hover{border-color:var(--n4);background:var(--n0);}
+    .di{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+    .di.pdf{background:#fbeaea;color:#a33;}.di.xls{background:#eaf0fb;color:#1a3d8a;}
+    .di.ppt{background:#fff1e6;color:#c45a0e;}.di.zip{background:#ede8fb;color:#5a3baa;}
+    .di.def{background:#f0f0f0;color:#555;}
+    .dnf{flex:1;min-width:0;}
+    .dn2{font-size:14px;font-weight:500;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .dm{display:flex;gap:10px;margin-top:3px;}
+    .dct{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--n0);color:var(--n7);border:0.5px solid var(--n1);}
+    .dsz,.ddt{font-size:11px;color:var(--tx);}
+    .dac{display:flex;gap:8px;flex-shrink:0;}
+    .bdl{padding:7px 14px;background:var(--n9);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;}
+    .bdl:hover{background:var(--n7);}
+    .fbn{background:var(--n9);border-radius:var(--rl);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+    .fbn::after{content:'🏏';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:36px;opacity:0.15;}
+    .fbn-ic{font-size:22px;}
+    .fbn-tx h3{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--g4);}
+    .fbn-tx p{font-size:12px;color:var(--n2);margin-top:2px;}
+    .fbn-btn{margin-left:auto;padding:7px 16px;border:0.5px solid var(--g5);border-radius:6px;background:none;color:var(--g4);font-size:12px;cursor:pointer;flex-shrink:0;z-index:1;position:relative;font-family:'DM Sans',sans-serif;}
+    .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;}
+    .tcard{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem;text-align:center;}
+    .tcard.cur{border:1.5px solid var(--n6);}
+    .tic{font-size:22px;margin-bottom:6px;}
+    .tnm{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:var(--td);}
+    .tds{font-size:11px;color:var(--tx);margin-top:3px;line-height:1.4;}
+    .tbg{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:10px;font-size:10px;background:var(--n0);color:var(--n7);border:0.5px solid var(--n1);}
+    .tcard.cur .tbg{background:var(--n9);color:var(--g4);border-color:var(--n8);}
+    .alist{display:flex;flex-direction:column;gap:1px;}
+    .ait{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--bd);}
+    .ait:last-child{border-bottom:none;}
+    .adot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .adot.dl{background:var(--n4);}.adot.vw{background:var(--g5);}
+    .atx{font-size:13px;color:var(--tm);flex:1;}.atx b{font-weight:500;color:var(--td);}
+    .atm{font-size:11px;color:var(--tx);}
+    .pnl{display:none;}.pnl.on{display:block;}
+    .air{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--tm);margin-bottom:1rem;line-height:1.6;display:none;}
+    .air.on{display:block;}
+    .wtst{background:var(--n0);border:0.5px solid var(--n2);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--n7);display:flex;align-items:center;gap:8px;animation:fi 0.4s ease;}
+    @keyframes fi{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+    /* membership fields */
+    .mic{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1.25rem;margin-bottom:1.5rem;}
+    .mfr{margin-bottom:1.1rem;}
+    .mfr2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;}
+    .mf label{display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:6px;letter-spacing:0.03em;}
+    .miw{position:relative;}
+    .miw i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;}
+    .miw input{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;transition:border-color 0.15s;}
+    .miw input:focus{outline:none;border-color:var(--n4);}
+    .miw input::placeholder{color:var(--tx);opacity:0.6;}
+    .rg{display:flex;gap:1.5rem;flex-wrap:wrap;}
+    .ri{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer;}
+    .ri input[type=radio]{accent-color:var(--n6);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+    .msave{display:flex;justify-content:flex-end;margin-top:1.25rem;}
+    .bsave{padding:8px 18px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+    .bsave:hover{background:var(--n7);}
+    /* admin add doc */
+    .admin-panel{background:var(--bg);border:1.5px dashed var(--n2);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;}
+    .admin-panel h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--td);margin-bottom:1.25rem;}
+    .adm-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .adm-grid .full{grid-column:1/-1;}
+    .adm-fld label{display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;letter-spacing:0.03em;}
+    .adm-wrap{position:relative;}
+    .adm-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;}
+    .adm-wrap input,.adm-wrap select,.adm-wrap textarea{width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;transition:border-color 0.15s;}
+    .adm-wrap select{appearance:none;}
+    .adm-wrap textarea{padding:9px 11px;resize:none;height:38px;}
+    .adm-wrap input:focus,.adm-wrap select:focus,.adm-wrap textarea:focus{outline:none;border-color:var(--n4);}
+    .adm-wrap input::placeholder,.adm-wrap textarea::placeholder{color:var(--tx);opacity:0.6;}
+    .adm-hint{font-size:11px;color:var(--tx);margin-top:4px;line-height:1.4;}
+    .btn-add{margin-top:1.25rem;padding:9px 22px;background:var(--n9);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+    .btn-add:hover{background:var(--n7);}
+    .btn-add:disabled{opacity:0.6;cursor:not-allowed;}
+    .lcard{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:2rem;text-align:center;color:var(--tx);font-size:13px;}
+
+    /* ── MOBILE FIRST RESPONSIVE ── */
+
+    /* Touch targets — all buttons/inputs min 44px */
+    button, input, select, textarea { touch-action: manipulation; }
+    .btnp { padding: 13px; font-size: 15px; }
+    .fw input { padding: 13px 13px 13px 38px; font-size: 15px; }
+    .fp { padding: 8px 16px; font-size: 13px; }
+    .bdl { padding: 10px 16px; font-size: 13px; }
+    .ntab { padding: 14px 18px; font-size: 13px; }
+
+    /* Inputs larger on mobile for easier tapping */
+    .af input, .af select { padding: 12px 11px 12px 36px; font-size: 15px; }
+    .miw input { padding: 12px 11px 12px 36px; font-size: 15px; }
+    .afw i, .miw i { font-size: 18px; }
+
+    @media(max-width:600px){
+      /* Auth pages */
+      #login, #forgot { padding: 1rem; align-items: flex-start; padding-top: 2rem; }
+      .acard { border-radius: 14px; }
+      .acard-hd { padding: 1.25rem 1.25rem; }
+      .acard-bd { padding: 1.25rem; }
+      .ftitle { font-size: 22px; }
+
+      /* Apply page */
+      #apply { padding: 1rem; }
+      .awrap { padding: 0; }
+      .abk { margin-bottom: 1rem; font-size: 14px; }
+      .acard2 { border-radius: 14px; }
+      .ahd { padding: 1.25rem; }
+      .ahd-txt h2 { font-size: 16px; }
+      .sbar { padding: 0.9rem 1rem; overflow-x: auto; }
+      .sl { display: none; }
+      .abdy { padding: 1.25rem; }
+      .asec { font-size: 14px; }
+      .fg2 { grid-template-columns: 1fr; gap: 0.75rem; }
+      .tpick { grid-template-columns: 1fr; }
+      .anav { padding: 1rem 1.25rem; }
+      .bprev, .bnxt { padding: 12px 18px; font-size: 14px; }
+      .asuc { padding: 2rem 1.25rem; }
+      .rvblk { padding: 0.75rem 1rem; }
+      .rvrow { font-size: 12px; padding: 6px 0; }
+
+      /* Portal header */
+      .portal { padding-bottom: 2rem; }
+      .phd { padding: 1rem 1rem 0.75rem; }
+      .lmk { width: 32px; height: 32px; font-size: 15px; }
+      .ltx h1 { font-size: 15px; }
+      .mbadge { padding: 3px 9px; font-size: 11px; }
+      .mbadge span { display: none; }
+      .mbadge::after { content: attr(data-tier); }
+      .blgo { padding: 6px 8px; font-size: 12px; }
+      .blgo span { display: none; }
+
+      /* Nav tabs */
+      .ntabs { -webkit-overflow-scrolling: touch; }
+      .ntab { padding: 12px 14px; font-size: 12px; gap: 4px; }
+      .ntab i { font-size: 16px; }
+
+      /* Content */
+      .cnt { padding: 1rem 1rem 0; }
+      .sh { margin-bottom: 0.75rem; }
+      .stl { font-size: 16px; }
+
+      /* Featured banner */
+      .fbn { padding: 0.9rem 1rem; gap: 10px; }
+      .fbn-ic { display: none; }
+      .fbn-tx h3 { font-size: 13px; }
+      .fbn-tx p { font-size: 11px; }
+      .fbn-btn { padding: 6px 12px; font-size: 12px; }
+
+      /* Search */
+      .si2 { padding: 12px 12px 12px 36px; font-size: 14px; }
+
+      /* Filter pills */
+      .fr { gap: 6px; }
+      .fp { padding: 7px 12px; font-size: 12px; }
+
+      /* Document cards */
+      .dc { padding: 0.85rem 0.9rem; gap: 10px; }
+      .di { width: 36px; height: 36px; font-size: 16px; border-radius: 7px; }
+      .dn2 { font-size: 13px; }
+      .dm { gap: 6px; flex-wrap: wrap; }
+      .dct, .dsz, .ddt { font-size: 10px; }
+      .bdl { padding: 8px 12px; font-size: 12px; }
+
+      /* Membership tab */
+      .mic { padding: 1rem; }
+      .mfr2 { grid-template-columns: 1fr; gap: 0.75rem; }
+      .tgrid { grid-template-columns: 1fr; gap: 8px; }
+      .tcard { padding: 0.85rem; display: flex; align-items: center; gap: 12px; text-align: left; }
+      .tic { font-size: 20px; margin-bottom: 0; flex-shrink: 0; }
+      .msave { justify-content: stretch; }
+      .bsave { width: 100%; justify-content: center; padding: 12px; }
+
+      /* Welcome toast */
+      .wtst { font-size: 12px; padding: 8px 12px; }
+
+      /* Activity */
+      .ait { padding: 12px 0; }
+      .atx { font-size: 12px; }
+      .atm { font-size: 11px; white-space: nowrap; }
+    }
+
+    @media(max-width:380px){
+      .acard-bd { padding: 1rem; }
+      .abdy { padding: 1rem; }
+      .cnt { padding: 0.75rem 0.75rem 0; }
+      .ntab { padding: 11px 10px; font-size: 11px; }
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="pg on">
+  <div class="acard">
+    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">VNK Classes</div><div class="bsub">Members' Library</div></div></div></div>
+    <div class="acard-bd">
+      <div class="fhd"><div class="ftitle">Welcome back</div><div class="fsub">Sign in to access your member library</div></div>
+      <div class="ebox" id="lerr"><i class="ti ti-alert-circle"></i><span id="lerr-m"></span></div>
+      <div class="fld"><label>Email or Membership Number</label><div class="fw"><i class="ti ti-user fi"></i><input type="text" id="le" placeholder="you@example.com or VK-2025-00001" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="le-e">Please enter a valid email or membership number.</div></div>
+      <div class="fld"><label>Password</label><div class="fw"><i class="ti ti-lock fi"></i><input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="lp-e">Password cannot be empty.</div></div>
+      <div class="frow"><label class="rem"><input type="checkbox" /> Keep me signed in</label><button class="lnk" onclick="go('forgot')">Forgot password?</button></div>
+      <button class="btnp" id="lbtn" onclick="doLogin()"><div class="spin" id="lspin"></div><i class="ti ti-login" id="lic"></i><span id="llbl">Sign in to library</span></button>
+      <div class="rrow">Not a member yet? <a onclick="goToApply()">Apply for membership →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT -->
+<div id="forgot" class="pg">
+  <div class="acard">
+    <div class="acard-hd"><div class="acard-hd-in"><div class="bmark">C</div><div><div class="bname">VNK Classes</div><div class="bsub">Members' Library</div></div></div></div>
+    <div class="acard-bd">
+      <div class="fhd"><div class="ftitle">Reset your password</div><div class="fsub">Enter your account email and we'll send you a reset link.</div></div>
+      <div class="okbox" id="fok"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Reset link sent! Check your inbox.</span></div>
+      <div id="fform">
+        <div class="fld"><label>Email address</label><div class="fw"><i class="ti ti-mail fi"></i><input type="email" id="fe" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doForgot()" /></div><div class="ferr" id="fe-e">Please enter a valid email.</div></div>
+        <div class="ebox" id="ferr"><i class="ti ti-alert-circle"></i><span id="ferr-m"></span></div>
+        <button class="btnp" id="fbtn" onclick="doForgot()"><div class="spin" id="fspin"></div><i class="ti ti-send" id="fic"></i><span id="flbl">Send reset link</span></button>
+      </div>
+      <div class="rrow" style="margin-top:1rem"><button class="lnk" onclick="go('login')"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back to sign in</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- APPLY -->
+<div id="apply" class="pg">
+  <div class="awrap">
+    <button class="abk" onclick="go('login')"><i class="ti ti-arrow-left"></i> Back to sign in</button>
+    <div class="acard2">
+      <div class="ahd"><div class="ahd-in"><div class="bmark">C</div><div class="ahd-txt"><h2>Apply for Membership</h2><p>Approval within 2 business days</p></div></div></div>
+      <div class="sbar">
+        <div class="si"><div class="sc act" id="sc1">1</div><div class="sl act" id="sl1">Personal Details</div></div>
+        <div class="sln" id="ln1"></div>
+        <div class="si"><div class="sc" id="sc2">2</div><div class="sl" id="sl2">Choose Plan</div></div>
+        <div class="sln" id="ln2"></div>
+        <div class="si"><div class="sc" id="sc3">3</div><div class="sl" id="sl3">Review &amp; Submit</div></div>
+      </div>
+      <div class="abdy">
+        <!-- STEP 1 -->
+        <div class="astep on" id="step1">
+          <div class="asec">Personal Information</div>
+          <div class="fg2">
+            <div class="af"><label>First name</label><div class="afw"><i class="ti ti-user"></i><input type="text" id="a-fn" placeholder="Rohit" /></div><div class="aerr" id="ae-fn">Required.</div></div>
+            <div class="af"><label>Last name</label><div class="afw"><i class="ti ti-user"></i><input type="text" id="a-ln" placeholder="Sharma" /></div><div class="aerr" id="ae-ln">Required.</div></div>
+            <div class="af"><label>Email address</label><div class="afw"><i class="ti ti-mail"></i><input type="email" id="a-em" placeholder="you@example.com" /></div><div class="aerr" id="ae-em">Valid email required.</div></div>
+            <div class="af"><label>Phone number</label><div class="afw"><i class="ti ti-phone"></i><input type="tel" id="a-ph" placeholder="+91 98765 43210" /></div><div class="aerr" id="ae-ph">Required.</div></div>
+            <div class="af"><label>Date of birth</label><div class="afw"><i class="ti ti-calendar"></i><input type="text" id="a-db" placeholder="DD/MM/YYYY" maxlength="10" oninput="fmtDob(this)" /></div><div class="aerr" id="ae-db">Enter valid date DD/MM/YYYY.</div></div>
+            <div class="af"><label>Country</label><div class="afw"><i class="ti ti-map-pin"></i><input type="text" id="a-co" placeholder="e.g. India" /></div><div class="aerr" id="ae-co">Required.</div></div>
+            <div class="af full"><label>Cricket affiliation (optional)</label><div class="afw"><i class="ti ti-building-stadium"></i><input type="text" id="a-af" placeholder="e.g. Mumbai Cricket Association" /></div></div>
+          </div>
+          <!-- Qualification -->
+          <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--bd)">
+            <div class="asec" style="margin-bottom:1rem;padding-bottom:0.5rem">Qualification Details</div>
+            <div class="fg2">
+              <div class="af full"><label>Qualification status</label><div style="display:flex;gap:1.5rem;margin-top:2px"><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer"><input type="radio" name="a-qual" value="qualified" checked style="accent-color:var(--n6);width:14px;height:14px" /> Qualified</label><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer"><input type="radio" name="a-qual" value="unqualified" style="accent-color:var(--n6);width:14px;height:14px" /> Unqualified</label></div></div>
+              <div class="af"><label>State</label><div class="afw"><i class="ti ti-map-pin"></i><input type="text" id="a-st" placeholder="e.g. Maharashtra" /></div></div>
+              <div class="af full"><label>Level</label><div style="display:flex;gap:1.5rem;margin-top:2px"><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer"><input type="radio" name="a-lvl" value="state" checked style="accent-color:var(--n6);width:14px;height:14px" /> State level</label><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tm);cursor:pointer"><input type="radio" name="a-lvl" value="national" style="accent-color:var(--n6);width:14px;height:14px" /> National level</label></div></div>
+              <div class="af"><label>Year of passing — State</label><div class="afw"><i class="ti ti-calendar-event"></i><input type="number" id="a-yr-state" placeholder="e.g. 2018" min="1950" max="2099" /></div></div>
+              <div class="af"><label>Year of passing — National</label><div class="afw"><i class="ti ti-calendar-event"></i><input type="number" id="a-yr-natl" placeholder="e.g. 2021" min="1950" max="2099" /></div></div>
+            </div>
+          </div>
+          <!-- Password -->
+          <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--bd)">
+            <div class="asec" style="margin-bottom:1rem;padding-bottom:0.5rem">Create Account Password</div>
+            <div class="fg2">
+              <div class="af"><label>Password</label><div class="afw"><i class="ti ti-lock"></i><input type="password" id="a-pw" placeholder="Min. 6 characters" /></div><div class="aerr" id="ae-pw">Minimum 6 characters.</div></div>
+              <div class="af"><label>Confirm password</label><div class="afw"><i class="ti ti-lock"></i><input type="password" id="a-pw2" placeholder="Repeat password" /></div><div class="aerr" id="ae-pw2">Passwords don't match.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="astep" id="step2">
+          <div class="asec">Choose Your Membership Plan</div>
+          <div class="tpick">
+            <div class="topt pk" onclick="pickT(this,'Gold')"><div class="ti2">🥇</div><div class="tn">Gold</div><div class="tp">₹2,499 / year</div><div class="tk">Unlimited · Full library · Priority support</div></div>
+            <div class="topt" onclick="pickT(this,'Platinum')"><div class="ti2">💎</div><div class="tn">Platinum</div><div class="tp">₹4,999 / year</div><div class="tk">Gold + live feeds · API access</div></div>
+          </div>
+          <div style="margin-top:1rem"><div class="af"><label>How did you hear about us?</label><div class="afw"><i class="ti ti-speakerphone"></i><select id="a-src"><option value="">Select…</option><option>Social media</option><option>Cricket board / club</option><option>Friend or colleague</option><option>Search engine</option><option>Other</option></select></div></div></div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="astep" id="step3">
+          <div class="asec">Review Your Application</div>
+          <div class="rvblk"><h4>Personal Details</h4>
+            <div class="rvrow"><span class="rl2">Name</span><span class="rv2" id="rv-nm">—</span></div>
+            <div class="rvrow"><span class="rl2">Email</span><span class="rv2" id="rv-em">—</span></div>
+            <div class="rvrow"><span class="rl2">Phone</span><span class="rv2" id="rv-ph">—</span></div>
+            <div class="rvrow"><span class="rl2">Country</span><span class="rv2" id="rv-co">—</span></div>
+            <div class="rvrow"><span class="rl2">Affiliation</span><span class="rv2" id="rv-af">—</span></div>
+            <div class="rvrow"><span class="rl2">Qualification</span><span class="rv2" id="rv-ql">—</span></div>
+            <div class="rvrow"><span class="rl2">State</span><span class="rv2" id="rv-st">—</span></div>
+            <div class="rvrow"><span class="rl2">Level</span><span class="rv2" id="rv-lv">—</span></div>
+            <div class="rvrow"><span class="rl2">Year passing (State)</span><span class="rv2" id="rv-yrs">—</span></div>
+            <div class="rvrow"><span class="rl2">Year passing (National)</span><span class="rv2" id="rv-yrn">—</span></div>
+          </div>
+          <div class="rvblk"><h4>Membership Plan</h4>
+            <div class="rvrow"><span class="rl2">Plan</span><span class="rv2" id="rv-pl">Gold</span></div>
+            <div class="rvrow"><span class="rl2">Price</span><span class="rv2" id="rv-pr">₹2,499 / year</span></div>
+            <div class="rvrow"><span class="rl2">Heard via</span><span class="rv2" id="rv-sr">—</span></div>
+          </div>
+          <div class="tbox"><strong>Terms &amp; Conditions:</strong> By submitting you agree to VNK Classes's membership terms. Membership is subject to approval. Documents are for personal non-commercial use only.</div>
+          <label class="ci"><input type="checkbox" id="tc" /> I agree to the Terms &amp; Conditions</label>
+          <div class="ebox" id="aerr" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="aerr-m"></span></div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div class="astep" id="step-ok">
+          <div class="asuc">
+            <div class="sico"><i class="ti ti-circle-check"></i></div>
+            <div class="stit">Application Submitted!</div>
+            <div class="ssub">Your account has been created. Our team will approve your membership within 2 business days.</div>
+            <div style="background:var(--n9);border-radius:var(--rl);padding:1.25rem 2rem;margin-bottom:1.5rem;display:inline-block;min-width:240px;">
+              <div style="font-size:11px;color:var(--n2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Your Membership Number</div>
+              <div class="sref" id="sref" style="background:none;border:none;padding:0;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--g4);letter-spacing:0.06em;display:block;margin-bottom:0;">—</div>
+              <div style="font-size:11px;color:var(--n2);margin-top:6px;">Save this number — you can use it to sign in</div>
+            </div>
+            <br>
+            <button class="bgl" onclick="go('login')"><i class="ti ti-login"></i> Go to Sign In</button>
+          </div>
+        </div>
+      </div>
+      <div class="anav" id="anav">
+        <button class="bprev" id="bprev" onclick="aPrev()" style="visibility:hidden"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="bnxt" id="bnxt" onclick="aNext()">Continue <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal" class="pg">
+  <div class="portal">
+    <div class="phd">
+      <div class="phd-in">
+        <div class="phd-top">
+          <div class="loa"><div class="lmk">C</div><div class="ltx"><h1 id="member-greeting">Welcome</h1></div></div>
+          <div class="phd-ac">
+            <div class="mbadge"><i class="ti ti-shield-check"></i> <span id="portal-tier">Member</span></div>
+            <button class="blgo" onclick="doLogout()"><i class="ti ti-logout"></i> Sign out</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ntabs">
+      <button class="ntab act" onclick="tab('lib',this)"><i class="ti ti-library"></i> Library</button>
+      <button class="ntab" onclick="tab('mem',this)"><i class="ti ti-id-badge"></i> Membership</button>
+    </div>
+    <div class="cnt">
+
+      <!-- LIBRARY -->
+      <div class="pnl on" id="pnl-lib">
+        <div style="height:1.25rem"></div>
+        <div id="wbanner"></div>
+
+        <div class="sw"><i class="ti ti-search"></i><input class="si2" type="text" id="srch" placeholder="Search documents…" oninput="doSearch(this.value)" /></div>
+        <div class="air" id="air"></div>
+        <div class="fr">
+          <button class="fp act" onclick="filt('All',this)">All</button>
+          <button class="fp" onclick="filt('Training',this)">Training</button>
+          <button class="fp" onclick="filt('Knowledge',this)">Knowledge</button>
+
+        </div>
+        <div class="sh"><span class="stl" id="dtit">All Documents</span><a class="sa" href="#">Sort: Recent ↓</a></div>
+        <div class="dg" id="dgrid"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading documents…</div></div>
+      </div>
+
+      <!-- MEMBERSHIP -->
+      <div class="pnl" id="pnl-mem">
+        <div style="height:1.25rem"></div>
+        <div id="mem-number-banner" style="display:none;background:var(--n9);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;color:var(--n2);letter-spacing:0.06em;text-transform:uppercase;">Membership Number</div>
+              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--g4);margin-top:2px;" id="mem-number-display">—</div>
+            </div>
+            <div style="font-size:28px;opacity:0.2;">🏏</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:0.9rem;padding-top:0.9rem;border-top:0.5px solid rgba(255,255,255,0.12);">
+            <span id="payment-status-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.03em;">—</span>
+            <span style="font-size:12px;color:var(--n2);" id="payment-valid-text">—</span>
+          </div>
+        </div>
+        <div class="sh"><span class="stl">Personal Information</span></div>
+        <div class="mic">
+          <div class="mfr2">
+            <div class="mf"><label>First name</label><div class="miw"><i class="ti ti-user"></i><input type="text" id="m-fn" placeholder="Rohit" /></div></div>
+            <div class="mf"><label>Last name</label><div class="miw"><i class="ti ti-user"></i><input type="text" id="m-ln" placeholder="Sharma" /></div></div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Email address</label><div class="miw"><i class="ti ti-mail"></i><input type="email" id="m-em" placeholder="you@example.com" /></div></div>
+            <div class="mf"><label>Phone number</label><div class="miw"><i class="ti ti-phone"></i><input type="tel" id="m-ph" placeholder="+91 98765 43210" /></div></div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Date of birth</label><div class="miw"><i class="ti ti-calendar"></i><input type="text" id="m-db" placeholder="DD/MM/YYYY" maxlength="10" oninput="fmtDob(this)" /></div></div>
+            <div class="mf"><label>Country</label><div class="miw"><i class="ti ti-map-pin"></i><input type="text" id="m-co" placeholder="e.g. India" /></div></div>
+          </div>
+          <div class="mfr"><div class="mf"><label>Cricket affiliation (optional)</label><div class="miw"><i class="ti ti-building-stadium"></i><input type="text" id="m-af" placeholder="e.g. Mumbai Cricket Association" /></div></div></div>
+          <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--bd)">
+            <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--td);margin-bottom:1rem">Qualification Details</div>
+            <div class="mfr"><div class="mf"><label>Qualification status</label><div class="rg"><label class="ri"><input type="radio" name="m-qual" value="qualified" checked /> Qualified</label><label class="ri"><input type="radio" name="m-qual" value="unqualified" /> Unqualified</label></div></div></div>
+            <div class="mfr2"><div class="mf"><label>State</label><div class="miw"><i class="ti ti-map-pin"></i><input type="text" id="m-st" placeholder="e.g. Maharashtra" /></div></div></div>
+            <div class="mfr"><div class="mf"><label>Level</label><div class="rg"><label class="ri"><input type="radio" name="m-lvl" value="state" checked /> State level</label><label class="ri"><input type="radio" name="m-lvl" value="national" /> National level</label></div></div></div>
+            <div class="mfr2">
+              <div class="mf"><label>Year of passing — State</label><div class="miw"><i class="ti ti-calendar-event"></i><input type="number" id="m-yrs" placeholder="e.g. 2018" min="1950" max="2099" /></div></div>
+              <div class="mf"><label>Year of passing — National</label><div class="miw"><i class="ti ti-calendar-event"></i><input type="number" id="m-yrn" placeholder="e.g. 2021" min="1950" max="2099" /></div></div>
+            </div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Date of membership</label><div class="miw"><i class="ti ti-calendar-check"></i><input type="text" id="m-dom" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);" /></div></div>
+            <div class="mf"><label>Membership number</label><div class="miw"><i class="ti ti-id-badge"></i><input type="text" id="m-mno" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);font-weight:600;letter-spacing:0.04em;" /></div></div>
+          </div>
+          <div class="mfr2">
+            <div class="mf"><label>Payment date</label><div class="miw"><i class="ti ti-cash"></i><input type="text" id="m-paydate" placeholder="—" readonly style="background:var(--bg2);cursor:default;color:var(--tx);" /></div></div>
+            <div class="mf"><label>Membership expiry</label><div class="miw"><i class="ti ti-calendar-x"></i><input type="text" id="m-expiry" placeholder="—" readonly style="background:var(--bg2);cursor:default;" /></div></div>
+          </div>
+          <div id="expiry-warning" style="display:none;background:#fdf0f0;border:0.5px solid #e57373;border-radius:var(--r);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <i class="ti ti-alert-circle"></i><span id="expiry-warning-text"></span>
+          </div>
+          <div class="msave"><button class="bsave" onclick="saveProfile(this)"><i class="ti ti-device-floppy"></i> Save changes</button></div>
+        </div>
+        <div class="sh"><span class="stl">Your Membership</span></div>
+        <div class="tgrid">
+          <div class="tcard" id="tier-gold"><div class="tic">🥇</div><div class="tnm">Gold</div><div class="tds">Unlimited · Full library · Priority access</div><div class="tbg" id="tier-gold-badge">Upgrade</div></div>
+          <div class="tcard" id="tier-platinum"><div class="tic">💎</div><div class="tnm">Platinum</div><div class="tds">Gold + live data feeds + API access</div><div class="tbg" id="tier-platinum-badge">Upgrade</div></div>
+        </div>
+      </div>
+
+      <!-- ADD DOCUMENT (OneDrive) -->
+
+
+
+
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+  
+  
+  
+
+  const app=firebase.initializeApp({
+    apiKey:"AIzaSyBuoMwXGficK4pjvYZDpCTFM3uTLwKfPxk",
+    authDomain:"vnkmembershipwebsite.firebaseapp.com",
+    projectId:"vnkmembershipwebsite",
+    storageBucket:"vnkmembershipwebsite.firebasestorage.app",
+    messagingSenderId:"560196378389",
+    appId:"1:560196378389:web:f5b99063772cef747a131c"
+  });
+  const auth=firebase.auth();
+  const db=firebase.firestore();
+
+  const TPRICE={Gold:"₹2,499 / year",Platinum:"₹4,999 / year"};
+  const TICO={pdf:"ti-file-type-pdf",xls:"ti-table",ppt:"ti-presentation",zip:"ti-file-zip",def:"ti-file"};
+
+  // ── AUTH STATE ──
+  let skipAuthState = false; // flag to skip during registration
+  auth.onAuthStateChanged(async user=>{
+    if(skipAuthState) return; // skip during registration flow
+    if(user){
+      const p=await loadProfile(user.uid);
+      // Only allow approved members into the portal
+      if(p && p.status==='approved'){
+        showPortal(user,p);
+      } else {
+        // Not approved yet — sign out and show message
+        await auth.signOut();
+        if(p && p.status==='pending'){
+          document.getElementById('lerr-m').textContent='Your membership is pending approval. You will be notified by email once approved.';
+        } else if(p && p.status==='rejected'){
+          document.getElementById('lerr-m').textContent='Your membership application was not approved. Please contact the administrator.';
+        } else {
+          document.getElementById('lerr-m').textContent='Your account is not yet approved. Please wait for admin approval.';
+        }
+        document.getElementById('lerr').classList.add('on');
+        go('login');
+      }
+    }
+  });
+
+  // ── UTILS ──
+  function goToApply(){
+    aStep=1; aTier='Gold';
+    // Reset steps
+    document.querySelectorAll('.astep').forEach(s=>s.classList.remove('on'));
+    const s1=document.getElementById('step1');
+    if(s1) s1.classList.add('on');
+    const anav=document.getElementById('anav');
+    if(anav) anav.style.display='flex';
+    const bnxt=document.getElementById('bnxt');
+    if(bnxt){ bnxt.innerHTML='Continue <i class="ti ti-arrow-right"></i>'; bnxt.disabled=false; }
+    const bprev=document.getElementById('bprev');
+    if(bprev) bprev.style.visibility='hidden';
+    // Clear all inputs
+    document.querySelectorAll('#apply input, #apply select').forEach(el=>{
+      if(el.type==='radio') el.checked=el.defaultChecked;
+      else if(el.type==='checkbox') el.checked=false;
+      else el.value='';
+    });
+    // Reset tier
+    document.querySelectorAll('.topt').forEach(t=>t.classList.remove('pk'));
+    const firstTopt=document.querySelector('.topt');
+    if(firstTopt) firstTopt.classList.add('pk');
+    // Clear errors
+    document.querySelectorAll('.aerr').forEach(e=>e.classList.remove('on'));
+    const aerrEl=document.getElementById('aerr');
+    if(aerrEl) aerrEl.classList.remove('on');
+    // Reset step bar
+    for(let i=1;i<=3;i++){
+      const sc=document.getElementById('sc'+i);
+      const sl=document.getElementById('sl'+i);
+      if(sc) sc.className = i===1 ? 'sc act' : 'sc';
+      if(sl) sl.className = i===1 ? 'sl act' : 'sl';
+      if(i<3){ const ln=document.getElementById('ln'+i); if(ln) ln.className='sln'; }
+    }
+    go('apply');
+  }
+
+  window.goToApply = goToApply;
+
+  // Auto-format DOB input as DD/MM/YYYY
+  function fmtDob(el){
+    let v = el.value.replace(/\D/g,'');
+    if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+    if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+    el.value = v.slice(0,10);
+  }
+  window.fmtDob = fmtDob;
+  function go(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');}
+  window.go=go;
+  function busy(b,s,i,l,t){document.getElementById(b).disabled=true;document.getElementById(s).style.display='block';document.getElementById(i).style.display='none';document.getElementById(l).textContent=t;}
+  function unbusy(b,s,i,l,t){document.getElementById(b).disabled=false;document.getElementById(s).style.display='none';document.getElementById(i).style.display='';document.getElementById(l).textContent=t;}
+  function showE(box,msg,txt){document.getElementById(msg).textContent=txt;document.getElementById(box).classList.add('on');}
+  function hideE(box){document.getElementById(box).classList.remove('on');}
+
+  // ── LOGIN ──
+  window.doLogin=async function(){
+    const input=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
+    let ok=true;
+    document.getElementById('le-e').classList.remove('on');
+    document.getElementById('lp-e').classList.remove('on');
+    hideE('lerr');
+    if(!input){document.getElementById('le-e').classList.add('on');ok=false;}
+    if(!p){document.getElementById('lp-e').classList.add('on');ok=false;}
+    if(!ok)return;
+    busy('lbtn','lspin','lic','llbl','Signing in…');
+    try{
+      // Check if input is membership number (e.g. VK-2025-00001)
+      let e=input;
+      const isMemberNo=/^[A-Za-z]{2}-\d{4}-\d{5}$/.test(input);
+      if(isMemberNo){
+        const msnap=await db.collection('members').where('membershipNumber','==',input.toUpperCase()).limit(1).get();
+        if(msnap.empty){
+          unbusy('lbtn','lspin','lic','llbl','Sign in to library');
+          showE('lerr','lerr-m','Membership number not found.');
+          return;
+        }
+        e=msnap.docs[0].data().email;
+      }
+      const c=await auth.signInWithEmailAndPassword(e,p);
+      const prof=await loadProfile(c.user.uid);
+      document.getElementById('le').value='';document.getElementById('lp').value='';
+      unbusy('lbtn','lspin','lic','llbl','Sign in to library');
+      if(prof && prof.status==='approved'){
+        showPortal(c.user,prof);
+      } else {
+        await auth.signOut();
+        if(prof && prof.status==='pending'){
+          showE('lerr','lerr-m','Your membership is pending approval. You will be notified by email once approved.');
+        } else if(prof && prof.status==='rejected'){
+          showE('lerr','lerr-m','Your membership application was not approved. Please contact the administrator.');
+        } else {
+          showE('lerr','lerr-m','Your account is not yet approved. Please wait for admin approval.');
+        }
+      }
+    }catch(err){
+      unbusy('lbtn','lspin','lic','llbl','Sign in to library');
+      showE('lerr','lerr-m',err.code==='auth/invalid-credential'?'Invalid email or password.':err.message);
+    }
+  };
+
+  window.doLogout=async function(){await auth.signOut();go('login');};
+
+  // ── FORGOT ──
+  window.doForgot=async function(){
+    const e=document.getElementById('fe').value.trim();
+    document.getElementById('fe-e').classList.remove('on');hideE('ferr');
+    if(!e||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){document.getElementById('fe-e').classList.add('on');return;}
+    busy('fbtn','fspin','fic','flbl','Sending…');
+    try{
+      await auth.sendPasswordResetEmail(e);
+      unbusy('fbtn','fspin','fic','flbl','Send reset link');
+      document.getElementById('fform').style.display='none';
+      document.getElementById('fok').classList.add('on');
+    }catch(err){
+      unbusy('fbtn','fspin','fic','flbl','Send reset link');
+      showE('ferr','ferr-m',err.message);
+    }
+  };
+
+  // ── APPLY ──
+  let aStep=1,aTier='Gold';
+  window.pickT=function(el,nm){document.querySelectorAll('.topt').forEach(t=>t.classList.remove('pk'));el.classList.add('pk');aTier=nm;};
+  function updBar(s){
+    for(let i=1;i<=3;i++){
+      document.getElementById('sc'+i).className='sc'+(i<s?' dn':i===s?' act':'');
+      document.getElementById('sl'+i).className='sl'+(i===s?' act':'');
+      if(i<3)document.getElementById('ln'+i).className='sln'+(i<s?' dn':'');
+    }
+    document.getElementById('bprev').style.visibility=s>1?'visible':'hidden';
+    document.getElementById('bnxt').innerHTML=s===3?'Submit Application <i class="ti ti-send"></i>':'Continue <i class="ti ti-arrow-right"></i>';
+  }
+  function showStep(n){
+    document.querySelectorAll('.astep').forEach(s=>s.classList.remove('on'));
+    if(n>3){document.getElementById('step-ok').classList.add('on');document.getElementById('anav').style.display='none';}
+    else{document.getElementById('step'+n).classList.add('on');document.getElementById('anav').style.display='flex';}
+    updBar(n);aStep=n;
+  }
+  window.aNext=async function(){
+    if(aStep===1){
+      let ok=true;
+      [['a-fn','ae-fn',v=>v.trim().length>0],['a-ln','ae-ln',v=>v.trim().length>0],
+       ['a-em','ae-em',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)],
+       ['a-ph','ae-ph',v=>v.trim().length>0],
+       ['a-co','ae-co',v=>v.trim().length>0]].forEach(([f,e,fn])=>{
+        const el=document.getElementById(f),er=document.getElementById(e);
+        if(!fn(el.value)){er.classList.add('on');ok=false;}else{er.classList.remove('on');}
+      });
+      const pw=document.getElementById('a-pw').value,pw2=document.getElementById('a-pw2').value;
+      if(pw.length<6){document.getElementById('ae-pw').classList.add('on');ok=false;}else{document.getElementById('ae-pw').classList.remove('on');}
+      if(pw!==pw2){document.getElementById('ae-pw2').classList.add('on');ok=false;}else{document.getElementById('ae-pw2').classList.remove('on');}
+      if(!ok)return;showStep(2);
+    }else if(aStep===2){
+      const ql=document.querySelector('input[name="a-qual"]:checked');
+      const lv=document.querySelector('input[name="a-lvl"]:checked');
+      document.getElementById('rv-nm').textContent=document.getElementById('a-fn').value.trim()+' '+document.getElementById('a-ln').value.trim();
+      document.getElementById('rv-em').textContent=document.getElementById('a-em').value.trim();
+      document.getElementById('rv-ph').textContent=document.getElementById('a-ph').value.trim();
+      document.getElementById('rv-co').textContent=document.getElementById('a-co').value||'—';
+      document.getElementById('rv-af').textContent=document.getElementById('a-af').value.trim()||'—';
+      document.getElementById('rv-ql').textContent=ql?ql.value.charAt(0).toUpperCase()+ql.value.slice(1):'—';
+      document.getElementById('rv-st').textContent=document.getElementById('a-st').value.trim()||'—';
+      document.getElementById('rv-lv').textContent=lv?(lv.value==='state'?'State level':'National level'):'—';
+      document.getElementById('rv-yrs').textContent=document.getElementById('a-yr-state').value||'—';
+      document.getElementById('rv-yrn').textContent=document.getElementById('a-yr-natl').value||'—';
+      document.getElementById('rv-pl').textContent=aTier;
+      document.getElementById('rv-pr').textContent=TPRICE[aTier];
+      document.getElementById('rv-sr').textContent=document.getElementById('a-src').value||'—';
+      showStep(3);
+    }else if(aStep===3){
+      if(!document.getElementById('tc').checked){alert('Please agree to the Terms & Conditions.');return;}
+      hideE('aerr');
+      const btn=document.getElementById('bnxt');
+      btn.disabled=true;btn.innerHTML='<div class="spin" style="display:block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;margin-right:6px"></div>Creating account…';
+      const email=document.getElementById('a-em').value.trim(),pw=document.getElementById('a-pw').value;
+      try{
+        skipAuthState = true; // prevent auth state from redirecting during registration
+        const cred=await auth.createUserWithEmailAndPassword(email,pw);
+        // Generate unique membership number
+        const membershipNumber = await generateMembershipNumber();
+        const ql=document.querySelector('input[name="a-qual"]:checked');
+        const lv=document.querySelector('input[name="a-lvl"]:checked');
+        await db.collection('members').doc(cred.user.uid).set({
+          firstName:document.getElementById('a-fn').value.trim(),
+          lastName:document.getElementById('a-ln').value.trim(),
+          email,phone:document.getElementById('a-ph').value.trim(),
+          dob:document.getElementById('a-db').value,
+          country:document.getElementById('a-co').value,
+          affiliation:document.getElementById('a-af').value.trim(),
+          qualification:ql?ql.value:'qualified',
+          state:document.getElementById('a-st').value.trim(),
+          level:lv?lv.value:'state',
+          yearPassingState:document.getElementById('a-yr-state').value||'',
+          yearPassingNational:document.getElementById('a-yr-natl').value||'',
+          plan:aTier,heardVia:document.getElementById('a-src').value,
+          membershipNumber:membershipNumber,
+          status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('sref').textContent='Membership No: '+membershipNumber;
+        // Sign out immediately — user must wait for approval before logging in
+        await auth.signOut();
+        skipAuthState = false; // re-enable auth state handler
+        showStep(4);
+        // reset form fields so if user comes back form is clean
+        setTimeout(()=>{
+          document.querySelectorAll('#step1 input,#step2 input,#step2 select').forEach(el=>{
+            if(el.type==='radio'){el.checked=el.defaultChecked;}else{el.value='';}
+          });
+          document.getElementById('a-src').value='';
+          aStep=1; aTier='Gold';
+          document.querySelectorAll('.topt').forEach(t=>t.classList.remove('pk'));
+          const gld=document.querySelector('.topt');if(gld)gld.classList.add('pk');
+        }, 500);
+      }catch(err){
+        skipAuthState = false; // always reset flag on error
+        btn.disabled=false;btn.innerHTML='Submit Application <i class="ti ti-send"></i>';
+        // Re-enable nav buttons too
+        document.getElementById('bprev').disabled=false;
+        showE('aerr','aerr-m',err.code==='auth/email-already-in-use'?'An account with this email already exists. Please sign in instead.':err.message);
+        console.error('Registration error:',err);
+      }
+    }
+  };
+  window.aPrev=function(){if(aStep>1)showStep(aStep-1);};
+
+  // ── PORTAL INIT ──
+  async function showPortal(user,profile){
+    go('portal');
+    const nm=profile?(profile.firstName||'')+' '+(profile.lastName||''):user.email;
+    document.getElementById('wbanner').innerHTML=`<div class="wtst"><i class="ti ti-circle-check"></i> Welcome back, <strong style="margin-left:3px">${nm.trim()||user.email}</strong>!</div>`;
+    document.getElementById('member-greeting').textContent='Hi '+( nm.trim()||user.email);
+    setTimeout(()=>{const b=document.getElementById('wbanner');if(b)b.innerHTML='';},5000);
+    if(profile){
+      populateProfile(profile);
+      memberPlan = profile.plan||'Gold';
+      document.getElementById('portal-tier').textContent=profile.plan||'Member';
+      // highlight correct tier card
+      const plan = (profile.plan||'Gold').toLowerCase();
+      ['gold','platinum'].forEach(t=>{
+        const card=document.getElementById('tier-'+t);
+        const badge=document.getElementById('tier-'+t+'-badge');
+        if(t===plan){card.classList.add('cur');badge.textContent='Current plan';}
+        else{card.classList.remove('cur');badge.textContent='Upgrade';}
+      });
+      // Determine payment validity
+      if(profile.membershipExpiry?.toDate){
+        paymentValid = profile.membershipExpiry.toDate() > new Date();
+      } else {
+        paymentValid = false;
+      }
+    }
+    await loadDocs();
+    loadActivity();
+  }
+
+  // ── PROFILE ──
+  // ── MEMBERSHIP NUMBER GENERATOR ──
+  async function generateMembershipNumber(){
+    const year = new Date().getFullYear();
+    const fn = document.getElementById('a-fn').value.trim();
+    const ln = document.getElementById('a-ln').value.trim();
+    const initials = ((fn[0]||'X')+(ln[0]||'X')).toUpperCase();
+    const counterRef = db.collection('counters').doc('membership');
+    try{
+      const num = await db.runTransaction(async tx=>{
+        const snap = await tx.get(counterRef);
+        const next = snap.exists ? (snap.data().count||0)+1 : 1;
+        tx.set(counterRef,{count:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        return next;
+      });
+      return initials+'-'+year+'-'+String(num).padStart(5,'0');
+    }catch(err){
+      console.error('Counter error:',err.message);
+      // Fallback: use timestamp
+      const num = Date.now().toString().slice(-5);
+      return initials+'-'+year+'-'+num;
+    }
+  }
+
+
+  async function loadProfile(uid){try{const s=await db.collection('members').doc(uid).get();return s.exists?s.data():null;}catch{return null;}}
+  function populateProfile(p){
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+    s('m-fn',p.firstName);s('m-ln',p.lastName);s('m-em',p.email);s('m-ph',p.phone);
+    s('m-db',p.dob);s('m-co',p.country);s('m-af',p.affiliation);s('m-st',p.state);
+    s('m-yrs',p.yearPassingState);s('m-yrn',p.yearPassingNational);
+    // Membership date (from approvedAt or createdAt)
+    const domEl=document.getElementById('m-dom');
+    const mnoEl=document.getElementById('m-mno');
+    if(domEl){
+      const dateField = p.approvedAt || p.createdAt;
+      domEl.value = dateField?.toDate ? dateField.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—';
+    }
+    if(mnoEl) mnoEl.value = p.membershipNumber||'—';
+    // Payment date
+    const paydateEl=document.getElementById('m-paydate');
+    const expiryEl=document.getElementById('m-expiry');
+    const expiryWarn=document.getElementById('expiry-warning');
+    const expiryWarnTxt=document.getElementById('expiry-warning-text');
+    if(paydateEl) paydateEl.value = p.paymentDate?.toDate ? p.paymentDate.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—';
+    const badgeEl=document.getElementById('payment-status-badge');
+    const validTxtEl=document.getElementById('payment-valid-text');
+    if(expiryEl && p.membershipExpiry?.toDate){
+      const expDate = p.membershipExpiry.toDate();
+      expiryEl.value = expDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+      const now = new Date();
+      const daysLeft = Math.ceil((expDate-now)/(1000*60*60*24));
+      if(expDate < now){
+        expiryEl.style.color='#c0392b';
+        if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='Your membership has expired. Please contact the administrator to renew.'; expiryWarn.style.background='#fdf0f0'; expiryWarn.style.borderColor='#e57373'; expiryWarnTxt.style.color='#c0392b'; expiryWarn.querySelector('i').style.color='#c0392b'; }
+        if(badgeEl){ badgeEl.textContent='Expired'; badgeEl.style.background='#3a1515'; badgeEl.style.color='#ff8a8a'; }
+        if(validTxtEl) validTxtEl.textContent='Expired on '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      } else if(daysLeft <= 30){
+        expiryEl.style.color='#c45a0e';
+        if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='Your membership expires in '+daysLeft+' day(s). Please renew soon.'; expiryWarn.style.background='#fff1e6'; expiryWarn.style.borderColor='#f4a261'; expiryWarnTxt.style.color='#c45a0e'; expiryWarn.querySelector('i').style.color='#c45a0e'; }
+        if(badgeEl){ badgeEl.textContent='Expiring Soon'; badgeEl.style.background='#3a2a10'; badgeEl.style.color='#ffc078'; }
+        if(validTxtEl) validTxtEl.textContent='Valid till '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      } else {
+        expiryEl.style.color='#1a7a4a';
+        if(expiryWarn) expiryWarn.style.display='none';
+        if(badgeEl){ badgeEl.textContent='Active'; badgeEl.style.background='#16331f'; badgeEl.style.color='#7dd99f'; }
+        if(validTxtEl) validTxtEl.textContent='Valid till '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      }
+    } else {
+      if(badgeEl){ badgeEl.textContent='Payment Pending'; badgeEl.style.background='#3a2a10'; badgeEl.style.color='#ffc078'; }
+      if(validTxtEl) validTxtEl.textContent='No active payment on record';
+      if(expiryWarn){ expiryWarn.style.display='flex'; expiryWarnTxt.textContent='No payment recorded yet. Documents will be unavailable until payment is confirmed.'; expiryWarn.style.background='#fff1e6'; expiryWarn.style.borderColor='#f4a261'; expiryWarnTxt.style.color='#c45a0e'; expiryWarn.querySelector('i').style.color='#c45a0e'; }
+    }
+    // Show membership number banner
+    if(p.membershipNumber){
+      const banner=document.getElementById('mem-number-banner');
+      const display=document.getElementById('mem-number-display');
+      if(banner) banner.style.display='flex';
+      if(display) display.textContent=p.membershipNumber;
+    }
+    document.querySelectorAll('input[name="m-qual"]').forEach(r=>r.checked=(r.value===(p.qualification||'qualified')));
+    document.querySelectorAll('input[name="m-lvl"]').forEach(r=>r.checked=(r.value===(p.level||'state')));
+  }
+  window.saveProfile=async function(btn){
+    const user=auth.currentUser;if(!user)return;
+    const orig=btn.innerHTML;btn.innerHTML='<i class="ti ti-loader" style="animation:sp 0.6s linear infinite;display:inline-block"></i> Saving…';btn.disabled=true;
+    const ql=document.querySelector('input[name="m-qual"]:checked');
+    const lv=document.querySelector('input[name="m-lvl"]:checked');
+    try{
+      await db.collection('members').doc(user.uid).set({
+        firstName:document.getElementById('m-fn').value.trim(),
+        lastName:document.getElementById('m-ln').value.trim(),
+        email:document.getElementById('m-em').value.trim(),
+        phone:document.getElementById('m-ph').value.trim(),
+        dob:document.getElementById('m-db').value,
+        country:document.getElementById('m-co').value.trim(),
+        affiliation:document.getElementById('m-af').value.trim(),
+        state:document.getElementById('m-st').value.trim(),
+        qualification:ql?ql.value:'qualified',
+        level:lv?lv.value:'state',
+        yearPassingState:document.getElementById('m-yrs').value||'',
+        yearPassingNational:document.getElementById('m-yrn').value||'',
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+      btn.innerHTML='<i class="ti ti-circle-check"></i> Saved!';
+      btn.style.background='var(--g5)';btn.style.color='var(--n9)';
+      setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';btn.style.color='';btn.disabled=false;},2500);
+    }catch(err){btn.innerHTML=orig;btn.disabled=false;alert('Save failed: '+err.message);}
+  };
+
+  // ── DOCUMENTS ──
+  let allDocs=[],cFilt='All',cSrch='',memberPlan='Gold',paymentValid=false;
+  async function loadDocs(){
+    try{
+      const snap=await db.collection('documents').orderBy('createdAt','desc').get();
+      allDocs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      // count only docs accessible to this member
+      const accessibleCount = allDocs.filter(d=>{
+        const dm=d.membership||'Gold';
+        if(dm==='Platinum') return memberPlan==='Platinum';
+        return true;
+      }).length;
+      const sdEl=document.getElementById('stat-docs'); if(sdEl) sdEl.textContent=accessibleCount;
+      applyFilt();
+    }catch(err){
+      document.getElementById('dgrid').innerHTML=`<div class="lcard">Error: ${err.message}</div>`;
+    }
+  }
+
+  function dcard(d){
+    const t=d.fileType||'def',ico=TICO[t]||'ti-file';
+    const date=d.createdAt?.toDate?d.createdAt.toDate().toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'';
+    return `<div class="dc">
+      <div class="di ${t}"><i class="ti ${ico}"></i></div>
+      <div class="dnf"><div class="dn2">${d.displayName||'—'}</div>
+        <div class="dm"><span class="dct">${d.category||'General'}</span>${d.size?`<span class="dsz">${d.size}</span>`:''}<span class="ddt">${date}</span></div>
+      </div>
+      <div class="dac"><button class="bdl" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button></div>
+    </div>`;
+  }
+
+  function applyFilt(){
+    let f=allDocs;
+    // filter by membership plan
+    f=f.filter(d=>{
+      const dm=d.membership||'Gold';
+      if(dm==='Platinum') return memberPlan==='Platinum';
+      return true; // Gold docs visible to all
+    });
+    if(cFilt!=='All')f=f.filter(d=>d.category===cFilt);
+    if(cSrch)f=f.filter(d=>(d.displayName||'').toLowerCase().includes(cSrch.toLowerCase()));
+    document.getElementById('dtit').textContent=cFilt==='All'?'All Documents':cFilt;
+    document.getElementById('dgrid').innerHTML=f.length?f.map(dcard).join(''):'<div class="lcard">No documents found.</div>';
+  }
+
+  window.filt=function(cat,el){document.querySelectorAll('.fp').forEach(p=>p.classList.remove('act'));el.classList.add('act');cFilt=cat;applyFilt();};
+  let st;
+  window.doSearch=function(v){
+    cSrch=v;clearTimeout(st);const a=document.getElementById('air');
+    if(v.length<3){a.classList.remove('on');applyFilt();return;}
+    st=setTimeout(()=>{applyFilt();a.innerHTML=`<i class="ti ti-sparkles" style="color:#c8a84b;margin-right:6px"></i>Showing results for <strong>"${v}"</strong>.`;a.classList.add('on');},300);
+  };
+
+  // ── ADD DOCUMENT (OneDrive) ──
+  window.addDoc=async function(){
+    const url=document.getElementById('d-url').value.trim();
+    const name=document.getElementById('d-name').value.trim();
+    const cat=document.getElementById('d-cat').value;
+    const size=document.getElementById('d-size').value.trim();
+    const type=document.getElementById('d-type').value;
+    hideE('adm-err');document.getElementById('adm-ok').classList.remove('on');
+    if(!url){showE('adm-err','adm-err-m','Please enter a OneDrive link.');return;}
+    if(!name){showE('adm-err','adm-err-m','Please enter a document name.');return;}
+    if(!cat){showE('adm-err','adm-err-m','Please select a category.');return;}
+    busy('btn-add','aspin','adic','adlbl','Adding…');
+    try{
+      await db.collection('documents').add({
+        displayName:name,category:cat,size,fileType:type,
+        downloadUrl:url,addedBy:auth.currentUser?.uid||'admin',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      unbusy('btn-add','aspin','adic','adlbl','Add to Library');
+      document.getElementById('adm-ok').classList.add('on');
+      document.getElementById('d-url').value='';
+      document.getElementById('d-name').value='';
+      document.getElementById('d-cat').value='';
+      document.getElementById('d-size').value='';
+      document.getElementById('d-type').value='pdf';
+      await loadDocs();
+    }catch(err){
+      unbusy('btn-add','aspin','adic','adlbl','Add to Library');
+      showE('adm-err','adm-err-m','Error: '+err.message);
+    }
+  };
+
+  function renderAdminDocs(docs){
+    const g=document.getElementById('admin-dg');
+    if(!g) return;
+    if(!docs.length){g.innerHTML='<div class="lcard">No documents added yet.</div>';return;}
+    g.innerHTML=docs.map(d=>{
+      const t=d.fileType||'def',ico=TICO[t]||'ti-file';
+      const date=d.createdAt?.toDate?d.createdAt.toDate().toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'';
+      return `<div class="dc">
+        <div class="di ${t}"><i class="ti ${ico}"></i></div>
+        <div class="dnf"><div class="dn2">${d.displayName||'—'}</div>
+          <div class="dm"><span class="dct">${d.category||'General'}</span>${d.size?`<span class="dsz">${d.size}</span>`:''}<span class="ddt">${date}</span></div>
+        </div>
+        <div class="dac"><button class="bdl" onclick="window.open('${d.downloadUrl}','_blank')"><i class="ti ti-external-link"></i> Open</button></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── ACTIVITY ──
+  function loadActivity(){
+    const ACT=[
+      {t:"dl",x:"<b>ICC Test Match Playing Conditions</b> downloaded",tm:"2h ago"},
+      {t:"vw",x:"<b>World Cup 2023 Statistical Review</b> previewed",tm:"Yesterday"},
+      {t:"dl",x:"<b>Fast Bowling Drills Compendium</b> downloaded",tm:"3 days ago"},
+    ];
+    document.getElementById('alist').innerHTML=ACT.map(a=>`<div class="ait"><div class="adot ${a.t}"></div><div class="atx">${a.x}</div><div class="atm">${a.tm}</div></div>`).join('');
+    const dlEl=document.getElementById('stat-dl'); if(dlEl) dlEl.textContent=ACT.filter(a=>a.t==='dl').length;
+  }
+
+  // ── TABS ──
+  window.tab=function(id,el){
+    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('act'));el.classList.add('act');
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-'+id).classList.add('on');
+  };
+</script>
+</body>
+</html>
