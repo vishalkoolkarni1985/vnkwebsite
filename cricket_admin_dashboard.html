@@ -135,6 +135,17 @@
     .empty{text-align:center;padding:3rem;color:var(--tx);font-size:13px;}
     .empty i{font-size:32px;color:var(--n1);display:block;margin-bottom:10px;}
     .lcard{padding:2rem;text-align:center;color:var(--tx);font-size:13px;background:var(--bg);border-radius:var(--rl);}
+    .dropdown-select, select#d-cat, select#d-type, select#d-membership, select#pay-duration,
+    select#ed-plan, select#ed-status, select#ed-dcat, select#ed-dtype, select#ed-dmembership,
+    .tsel, .mf select {
+      width:100%; padding:9px 32px 9px 12px; border:0.5px solid var(--bd); border-radius:var(--r);
+      font-size:13px; color:var(--td); background-color:var(--bg); font-family:'DM Sans',sans-serif;
+      cursor:pointer; appearance:none; -webkit-appearance:none; -moz-appearance:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a7f8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+      background-repeat:no-repeat; background-position:right 10px center;
+    }
+    select#d-cat, select#d-type, select#d-membership { padding-left:34px; }
+    .mf select { margin-top:4px; }
 
     /* ── MOBILE RESPONSIVE ── */
     button, input, select { touch-action: manipulation; }
@@ -324,7 +335,7 @@
           <div>
             <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Category</label>
             <div style="position:relative;"><i class="ti ti-tag" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
-            <select id="d-cat" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+            <select id="d-cat" style="padding-left:34px;">
               <option value="">Select category…</option>
               <option>Training</option><option>Knowledge</option>
             </select></div>
@@ -337,7 +348,7 @@
           <div>
             <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">File type</label>
             <div style="position:relative;"><i class="ti ti-file" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
-            <select id="d-type" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+            <select id="d-type" style="padding-left:34px;">
               <option value="pdf">PDF</option><option value="xls">Excel (XLS)</option>
               <option value="ppt">PowerPoint</option><option value="zip">ZIP</option>
               <option value="def">Other</option>
@@ -346,7 +357,7 @@
           <div>
             <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Membership access</label>
             <div style="position:relative;"><i class="ti ti-shield" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
-            <select id="d-membership" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;appearance:none;">
+            <select id="d-membership" style="padding-left:34px;">
               <option value="Gold">Gold & above</option>
               <option value="Platinum">Platinum only</option>
             </select></div>
@@ -402,11 +413,12 @@
         </div>
         <div class="mf full">
           <div class="mfl">Membership duration</div>
-          <select id="pay-duration" onchange="updateExpiryPreview()" style="width:100%;padding:8px 10px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;margin-top:4px;appearance:none;">
-            <option value="12">1 Year (12 months)</option>
+          <select id="pay-duration" onchange="updateExpiryPreview()" class="dropdown-select" style="margin-top:4px;">
+            <option value="1">Monthly (1 month)</option>
+            <option value="6">6 Months</option>
+            <option value="12" selected>1 Year (12 months)</option>
             <option value="24">2 Years (24 months)</option>
             <option value="36">3 Years (36 months)</option>
-            <option value="6">6 Months</option>
           </select>
         </div>
         <div class="mf full" id="expiry-preview" style="background:var(--n0);display:none;">
@@ -441,6 +453,10 @@
   });
   const auth = firebase.auth();
   const db   = firebase.firestore();
+  // Explicitly set LOCAL persistence so login survives page refresh/close
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err=>{
+    console.error('Persistence error:', err.message);
+  });
 
   // ── EMAILJS ──
   emailjs.init('h7gmIkQiNaJvpPUB_');
@@ -461,16 +477,47 @@
   function fmtDate(ts){ return ts?.toDate?ts.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—'; }
 
   // ── AUTH STATE ──
-  // Only restore session if user is already verified admin (stored in sessionStorage)
-  auth.onAuthStateChanged(user=>{
-    if(user && sessionStorage.getItem('cv_admin_verified')==='true'){
-      show('portal'); loadAll();
-    } else if(!user){
-      sessionStorage.removeItem('cv_admin_verified');
-      show('login-page');
+  // Re-verify isAdmin from Firestore on every load/refresh (works across sessions)
+  let _reloginAttempted = false;
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      _reloginAttempted = false;
+      try{
+        const snap = await db.collection('members').doc(user.uid).get();
+        if(snap.exists && snap.data().isAdmin === true){
+          sessionStorage.setItem('cv_admin_verified','true');
+          show('portal'); loadAll();
+        } else {
+          sessionStorage.removeItem('cv_admin_verified');
+          sessionStorage.removeItem('cv_admin_session');
+          await auth.signOut();
+          document.getElementById('lerr-m').textContent='Access denied. You do not have admin privileges.';
+          document.getElementById('lerr').classList.add('on');
+          show('login-page');
+        }
+      }catch(err){
+        sessionStorage.removeItem('cv_admin_verified');
+        show('login-page');
+      }
     } else {
-      // User is logged in but not verified yet — sign them out silently
-      auth.signOut();
+      // No active Firebase session — likely lost due to file:// storage limits.
+      // Try a one-time silent re-login using locally stored session (testing-only workaround).
+      const stored = sessionStorage.getItem('cv_admin_session');
+      if(stored && !_reloginAttempted){
+        _reloginAttempted = true;
+        try{
+          const {e,p} = JSON.parse(stored);
+          await auth.signInWithEmailAndPassword(e,p); // re-triggers this listener with a user
+          return;
+        }catch(err){
+          sessionStorage.removeItem('cv_admin_verified');
+          sessionStorage.removeItem('cv_admin_session');
+          show('login-page');
+        }
+      } else {
+        sessionStorage.removeItem('cv_admin_verified');
+        show('login-page');
+      }
     }
   });
 
@@ -491,10 +538,13 @@
       const snap = await db.collection('members').doc(cred.user.uid).get();
       if(snap.exists && snap.data().isAdmin === true){
         sessionStorage.setItem('cv_admin_verified','true');
+        // Store session locally so tab-switch/reload can silently restore login (local testing workaround)
+        sessionStorage.setItem('cv_admin_session', JSON.stringify({e,p}));
         show('portal'); loadAll();
       } else {
         await auth.signOut();
         sessionStorage.removeItem('cv_admin_verified');
+        sessionStorage.removeItem('cv_admin_session');
         btn.disabled=false;
         document.getElementById('lspin').style.display='none';
         document.getElementById('lic').style.display='';
@@ -518,6 +568,7 @@
   // ── LOGOUT ──
   document.getElementById('logoutBtn').addEventListener('click', async ()=>{
     sessionStorage.removeItem('cv_admin_verified');
+    sessionStorage.removeItem('cv_admin_session');
     await auth.signOut();
     document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
     document.getElementById('login-page').classList.add('on');

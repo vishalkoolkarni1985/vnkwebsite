@@ -511,15 +511,16 @@
         <div style="height:1.25rem"></div>
         <div id="wbanner"></div>
 
+        <div id="lib-search-filters">
         <div class="sw"><i class="ti ti-search"></i><input class="si2" type="text" id="srch" placeholder="Search documents…" oninput="doSearch(this.value)" /></div>
         <div class="air" id="air"></div>
         <div class="fr">
           <button class="fp act" onclick="filt('All',this)">All</button>
           <button class="fp" onclick="filt('Training',this)">Training</button>
           <button class="fp" onclick="filt('Knowledge',this)">Knowledge</button>
-
         </div>
-        <div class="sh"><span class="stl" id="dtit">All Documents</span><a class="sa" href="#">Sort: Recent ↓</a></div>
+        </div>
+        <div class="sh"><span class="stl" id="dtit">All Documents</span><a class="sa" href="#" id="sortLink">Sort: Recent ↓</a></div>
         <div class="dg" id="dgrid"><div class="lcard"><i class="ti ti-loader" style="animation:sp 1s linear infinite;display:inline-block;margin-right:6px"></i>Loading documents…</div></div>
       </div>
 
@@ -1038,6 +1039,23 @@
   }
 
   function applyFilt(){
+    const grid=document.getElementById('dgrid');
+    const searchFilters=document.getElementById('lib-search-filters');
+    const sortLink=document.getElementById('sortLink');
+    // Gate entire library behind payment validity
+    if(!paymentValid){
+      if(searchFilters) searchFilters.style.display='none';
+      if(sortLink) sortLink.style.display='none';
+      document.getElementById('dtit').textContent='Documents';
+      grid.innerHTML=`<div class="lcard" style="padding:2.5rem 1.5rem;">
+        <i class="ti ti-lock" style="font-size:32px;color:var(--n2);display:block;margin-bottom:10px;"></i>
+        <div style="font-weight:600;color:var(--td);font-size:14px;margin-bottom:6px;">Documents unavailable — payment required</div>
+        <div style="font-size:13px;color:var(--tx);max-width:320px;margin:0 auto;">Your membership payment is not active. Please complete your payment to access the document library. Contact the administrator for assistance.</div>
+      </div>`;
+      return;
+    }
+    if(searchFilters) searchFilters.style.display='';
+    if(sortLink) sortLink.style.display='';
     let f=allDocs;
     // filter by membership plan
     f=f.filter(d=>{
@@ -1048,7 +1066,7 @@
     if(cFilt!=='All')f=f.filter(d=>d.category===cFilt);
     if(cSrch)f=f.filter(d=>(d.displayName||'').toLowerCase().includes(cSrch.toLowerCase()));
     document.getElementById('dtit').textContent=cFilt==='All'?'All Documents':cFilt;
-    document.getElementById('dgrid').innerHTML=f.length?f.map(dcard).join(''):'<div class="lcard">No documents found.</div>';
+    grid.innerHTML=f.length?f.map(dcard).join(''):'<div class="lcard">No documents found.</div>';
   }
 
   window.filt=function(cat,el){document.querySelectorAll('.fp').forEach(p=>p.classList.remove('act'));el.classList.add('act');cFilt=cat;applyFilt();};
