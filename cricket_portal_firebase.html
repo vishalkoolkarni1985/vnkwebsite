@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VNK Classes — Members' Portal</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script src="https://www.google.com/recaptcha/api.js?render=6LcR3CctAAAAAHHpJgSU0YUrH5Eqtmyc3FLHfwo_"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -353,6 +354,7 @@
     <div class="acard-bd">
       <div class="fhd"><div class="ftitle">Welcome back</div><div class="fsub">Sign in to access your member library</div></div>
       <div class="ebox" id="lerr"><i class="ti ti-alert-circle"></i><span id="lerr-m"></span></div>
+      <div class="payment-info-slot" id="login-payment-info" style="display:none;"></div>
       <div class="fld"><label>Email or Membership Number</label><div class="fw"><i class="ti ti-user fi"></i><input type="text" id="le" placeholder="you@example.com or VK-2025-00001" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="le-e">Please enter a valid email or membership number.</div></div>
       <div class="fld"><label>Password</label><div class="fw"><i class="ti ti-lock fi"></i><input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()" /></div><div class="ferr" id="lp-e">Password cannot be empty.</div></div>
       <div class="frow"><label class="rem"><input type="checkbox" /> Keep me signed in</label><button class="lnk" onclick="go('forgot')">Forgot password?</button></div>
@@ -458,6 +460,7 @@
           </div>
           <div class="tbox"><strong>Terms &amp; Conditions:</strong> By submitting you agree to VNK Classes's membership terms. Membership is subject to approval. Documents are for personal non-commercial use only.</div>
           <label class="ci"><input type="checkbox" id="tc" /> I agree to the Terms &amp; Conditions</label>
+          <div style="font-size:11px;color:var(--tx);margin-top:0.75rem;line-height:1.5;">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--n6);">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" style="color:var(--n6);">Terms of Service</a> apply.</div>
           <div class="ebox" id="aerr" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="aerr-m"></span></div>
         </div>
 
@@ -472,6 +475,8 @@
               <div class="sref" id="sref" style="background:none;border:none;padding:0;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--g4);letter-spacing:0.06em;display:block;margin-bottom:0;">—</div>
               <div style="font-size:11px;color:var(--n2);margin-top:6px;">Save this number — you can use it to sign in</div>
             </div>
+            <div style="font-size:13px;color:var(--td);font-weight:600;margin-top:0.25rem;">Next step: complete your payment</div>
+            <div class="payment-info-slot" style="max-width:380px;margin:0 auto;"></div>
             <br>
             <button class="bgl" onclick="go('login')"><i class="ti ti-login"></i> Go to Sign In</button>
           </div>
@@ -494,6 +499,7 @@
           <div class="loa"><div class="lmk">C</div><div class="ltx"><h1 id="member-greeting">Welcome</h1></div></div>
           <div class="phd-ac">
             <div class="mbadge"><i class="ti ti-shield-check"></i> <span id="portal-tier">Member</span></div>
+            <button class="blgo" onclick="showProfile()" id="profileTabBtn"><i class="ti ti-user-circle"></i> Profile</button>
             <button class="blgo" onclick="doLogout()"><i class="ti ti-logout"></i> Sign out</button>
           </div>
         </div>
@@ -502,7 +508,6 @@
     </div>
     <div class="ntabs">
       <button class="ntab act" onclick="tab('lib',this)"><i class="ti ti-library"></i> Library</button>
-      <button class="ntab" onclick="tab('mem',this)"><i class="ti ti-id-badge"></i> Membership</button>
     </div>
     <div class="cnt">
 
@@ -614,13 +619,56 @@
   const auth=firebase.auth();
   const db=firebase.firestore();
 
+  // ── SITE CONFIG (read-only here; admin edits it from the dashboard Settings tab) ──
+  let siteConfig = {
+    adminEmail:'vishalkoolkarni@gmail.com',
+    upiId:'', payeeName:'', bankDetails:'', paymentContact:''
+  };
+  async function loadSiteConfig(){
+    try{
+      const snap = await db.collection('settings').doc('config').get();
+      if(snap.exists){ siteConfig = { ...siteConfig, ...snap.data() }; }
+    }catch(err){ console.error('Could not load site config:', err.message); }
+    renderPaymentInfo();
+  }
+  function renderPaymentInfo(){
+    const hasDetails = siteConfig.upiId || siteConfig.bankDetails;
+    const html = hasDetails ? `
+      <div style="text-align:left;background:var(--n0);border:0.5px solid var(--n1);border-radius:var(--r);padding:12px 14px;margin-top:1rem;font-size:12.5px;color:var(--n7);line-height:1.7;">
+        <div style="font-weight:600;color:var(--td);margin-bottom:4px;">Payment Details</div>
+        ${siteConfig.upiId?`<div><strong>UPI ID:</strong> ${siteConfig.upiId}${siteConfig.payeeName?' ('+siteConfig.payeeName+')':''}</div>`:''}
+        ${siteConfig.bankDetails?`<div style="white-space:pre-line;margin-top:4px;"><strong>Bank details:</strong><br>${siteConfig.bankDetails}</div>`:''}
+        ${siteConfig.paymentContact?`<div style="margin-top:4px;"><strong>Confirm payment with:</strong> ${siteConfig.paymentContact}</div>`:`<div style="margin-top:4px;"><strong>Confirm payment with:</strong> ${siteConfig.adminEmail}</div>`}
+      </div>` : `
+      <div style="text-align:left;background:var(--n0);border:0.5px solid var(--n1);border-radius:var(--r);padding:12px 14px;margin-top:1rem;font-size:12.5px;color:var(--n7);line-height:1.7;">
+        Please contact <strong>${siteConfig.adminEmail}</strong> for payment instructions to activate your membership.
+      </div>`;
+    document.querySelectorAll('.payment-info-slot').forEach(el=>{ el.innerHTML = html; });
+  }
+  function showLoginPaymentInfo(){
+    const el=document.getElementById('login-payment-info');
+    if(el) el.style.display='block';
+  }
+  function hideLoginPaymentInfo(){
+    const el=document.getElementById('login-payment-info');
+    if(el) el.style.display='none';
+  }
+  const siteConfigReady = loadSiteConfig(); // other code awaits this before trusting siteConfig values
+
   const TPRICE={Gold:"₹2,499 / year",Platinum:"₹4,999 / year"};
   const TICO={pdf:"ti-file-type-pdf",xls:"ti-table",ppt:"ti-presentation",zip:"ti-file-zip",def:"ti-file"};
 
   // ── AUTH STATE ──
   let skipAuthState = false; // flag to skip during registration
+  let justLoggedOut = false; // guard against stale auth re-fire after explicit logout (file:// quirk)
   auth.onAuthStateChanged(async user=>{
+    await siteConfigReady; // ensure payment/admin config is loaded before any payment-info message can be shown
     if(skipAuthState) return; // skip during registration flow
+    if(justLoggedOut){
+      // Stay on login page and ignore ALL auth events (even stale re-fires with a user)
+      // until the visitor deliberately attempts to log in again via doLogin().
+      return;
+    }
     if(user){
       const p=await loadProfile(user.uid);
       // Only allow approved members into the portal
@@ -630,11 +678,14 @@
         // Not approved yet — sign out and show message
         await auth.signOut();
         if(p && p.status==='pending'){
-          document.getElementById('lerr-m').textContent='Your membership is pending approval. You will be notified by email once approved.';
+          document.getElementById('lerr-m').textContent='Your membership is pending approval and payment confirmation. You will be notified by email once approved.';
+          showLoginPaymentInfo();
         } else if(p && p.status==='rejected'){
           document.getElementById('lerr-m').textContent='Your membership application was not approved. Please contact the administrator.';
+          hideLoginPaymentInfo();
         } else {
           document.getElementById('lerr-m').textContent='Your account is not yet approved. Please wait for admin approval.';
+          showLoginPaymentInfo();
         }
         document.getElementById('lerr').classList.add('on');
         go('login');
@@ -699,6 +750,9 @@
 
   // ── LOGIN ──
   window.doLogin=async function(){
+    await siteConfigReady; // ensure payment/admin config is loaded before any payment-info message can be shown
+    justLoggedOut = false; // clear sticky logout guard — user is intentionally logging in again
+    hideLoginPaymentInfo();
     const input=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
     let ok=true;
     document.getElementById('le-e').classList.remove('on');
@@ -726,24 +780,33 @@
       document.getElementById('le').value='';document.getElementById('lp').value='';
       unbusy('lbtn','lspin','lic','llbl','Sign in to library');
       if(prof && prof.status==='approved'){
+        hideLoginPaymentInfo();
         showPortal(c.user,prof);
       } else {
         await auth.signOut();
         if(prof && prof.status==='pending'){
-          showE('lerr','lerr-m','Your membership is pending approval. You will be notified by email once approved.');
+          showE('lerr','lerr-m','Your membership is pending approval and payment confirmation. You will be notified by email once approved.');
+          showLoginPaymentInfo();
         } else if(prof && prof.status==='rejected'){
           showE('lerr','lerr-m','Your membership application was not approved. Please contact the administrator.');
+          hideLoginPaymentInfo();
         } else {
           showE('lerr','lerr-m','Your account is not yet approved. Please wait for admin approval.');
+          showLoginPaymentInfo();
         }
       }
     }catch(err){
       unbusy('lbtn','lspin','lic','llbl','Sign in to library');
+      hideLoginPaymentInfo();
       showE('lerr','lerr-m',err.code==='auth/invalid-credential'?'Invalid email or password.':err.message);
     }
   };
 
-  window.doLogout=async function(){await auth.signOut();go('login');};
+  window.doLogout=async function(){
+    justLoggedOut = true; // sticky guard — stays true until next intentional login attempt
+    await auth.signOut();
+    go('login');
+  };
 
   // ── FORGOT ──
   window.doForgot=async function(){
@@ -815,9 +878,19 @@
       if(!document.getElementById('tc').checked){alert('Please agree to the Terms & Conditions.');return;}
       hideE('aerr');
       const btn=document.getElementById('bnxt');
-      btn.disabled=true;btn.innerHTML='<div class="spin" style="display:block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;margin-right:6px"></div>Creating account…';
+      btn.disabled=true;btn.innerHTML='<div class="spin" style="display:block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;margin-right:6px"></div>Verifying…';
       const email=document.getElementById('a-em').value.trim(),pw=document.getElementById('a-pw').value;
       try{
+        // reCAPTCHA v3 — invisible bot check before submission
+        await new Promise((resolve,reject)=>{
+          if(typeof grecaptcha==='undefined'){ resolve(); return; } // fail-open if script blocked
+          grecaptcha.ready(()=>{
+            grecaptcha.execute('6LcR3CctAAAAAHHpJgSU0YUrH5Eqtmyc3FLHfwo_',{action:'apply_membership'})
+              .then(token=>{ window._lastRecaptchaToken = token; resolve(); })
+              .catch(()=>resolve()); // fail-open rather than blocking legitimate users
+          });
+        });
+        btn.innerHTML='<div class="spin" style="display:block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.6s linear infinite;margin-right:6px"></div>Creating account…';
         skipAuthState = true; // prevent auth state from redirecting during registration
         const cred=await auth.createUserWithEmailAndPassword(email,pw);
         // Generate unique membership number
@@ -838,12 +911,15 @@
           yearPassingNational:document.getElementById('a-yr-natl').value||'',
           plan:aTier,heardVia:document.getElementById('a-src').value,
           membershipNumber:membershipNumber,
+          recaptchaToken: window._lastRecaptchaToken||null,
           status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
         document.getElementById('sref').textContent='Membership No: '+membershipNumber;
         // Sign out immediately — user must wait for approval before logging in
         await auth.signOut();
         skipAuthState = false; // re-enable auth state handler
+        await siteConfigReady; // ensure payment details are loaded before showing the success screen
+        renderPaymentInfo(); // re-render in case this resolved after the initial page-load render
         showStep(4);
         // reset form fields so if user comes back form is clean
         setTimeout(()=>{
@@ -894,7 +970,6 @@
       }
     }
     await loadDocs();
-    loadActivity();
   }
 
   // ── PROFILE ──
@@ -1126,22 +1201,17 @@
     }).join('');
   }
 
-  // ── ACTIVITY ──
-  function loadActivity(){
-    const ACT=[
-      {t:"dl",x:"<b>ICC Test Match Playing Conditions</b> downloaded",tm:"2h ago"},
-      {t:"vw",x:"<b>World Cup 2023 Statistical Review</b> previewed",tm:"Yesterday"},
-      {t:"dl",x:"<b>Fast Bowling Drills Compendium</b> downloaded",tm:"3 days ago"},
-    ];
-    document.getElementById('alist').innerHTML=ACT.map(a=>`<div class="ait"><div class="adot ${a.t}"></div><div class="atx">${a.x}</div><div class="atm">${a.tm}</div></div>`).join('');
-    const dlEl=document.getElementById('stat-dl'); if(dlEl) dlEl.textContent=ACT.filter(a=>a.t==='dl').length;
-  }
 
   // ── TABS ──
   window.tab=function(id,el){
     document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('act'));el.classList.add('act');
     document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
     document.getElementById('pnl-'+id).classList.add('on');
+  };
+  window.showProfile=function(){
+    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('act')); // leave Library tab visually inactive
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-mem').classList.add('on');
   };
 </script>
 </body>

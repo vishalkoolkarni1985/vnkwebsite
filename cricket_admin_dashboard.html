@@ -293,6 +293,7 @@
     <button class="atab act" id="tab-members"><i class="ti ti-users"></i> Members <span class="bcnt" id="pbadge">0</span></button>
     <button class="atab" id="tab-docs"><i class="ti ti-files"></i> Documents</button>
     <button class="atab" id="tab-adddoc"><i class="ti ti-plus"></i> Add Document</button>
+    <button class="atab" id="tab-settings"><i class="ti ti-settings"></i> Settings</button>
   </div>
   <div class="acnt">
     <div class="pnl on" id="pnl-members">
@@ -372,6 +373,73 @@
         </button>
       </div>
 
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="pnl" id="pnl-settings">
+      <div class="sh"><span class="stl">Account & Notification Settings</span></div>
+
+      <div style="background:var(--bg);border:1.5px dashed var(--n2);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--td);margin-bottom:1.25rem;">
+          <i class="ti ti-mail" style="color:var(--n4);margin-right:6px"></i>Admin & Email Settings
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Admin notification email</label>
+            <div style="position:relative;"><i class="ti ti-mail" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx);pointer-events:none;"></i>
+            <input type="email" id="cfg-admin-email" placeholder="admin@example.com" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" /></div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">EmailJS Service ID</label>
+            <input type="text" id="cfg-emailjs-service" placeholder="service_xxxxxxx" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">EmailJS Public Key</label>
+            <input type="text" id="cfg-emailjs-publickey" placeholder="public key" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">EmailJS Template — Approved</label>
+            <input type="text" id="cfg-emailjs-tplok" placeholder="template_xxxxxxx" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">EmailJS Template — Rejected</label>
+            <input type="text" id="cfg-emailjs-tplrej" placeholder="template_xxxxxxx" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--tx);margin-top:0.75rem;">Changes take effect immediately for new emails sent. Existing scheduled actions are unaffected.</div>
+      </div>
+
+      <div style="background:var(--bg);border:1.5px dashed var(--n2);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--td);margin-bottom:1.25rem;">
+          <i class="ti ti-cash" style="color:var(--n4);margin-right:6px"></i>Payment Details (shown to members)
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">UPI ID</label>
+            <input type="text" id="cfg-upi-id" placeholder="yourname@bank" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Payee name</label>
+            <input type="text" id="cfg-payee-name" placeholder="VNK Classes" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Bank account details (optional)</label>
+            <textarea id="cfg-bank-details" placeholder="Account name, number, IFSC, bank name…" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;min-height:70px;resize:vertical;"></textarea>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:12px;font-weight:500;color:var(--tx);margin-bottom:5px;">Contact for payment confirmation</label>
+            <input type="text" id="cfg-payment-contact" placeholder="e.g. WhatsApp +91 98765 43210 or admin@example.com" style="width:100%;padding:9px 11px;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="ebox" id="cfg-err" style="margin-top:1rem"><i class="ti ti-alert-circle"></i><span id="cfg-err-m"></span></div>
+      <div class="okbox" id="cfg-ok" style="margin-top:1rem"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Settings saved successfully!</span></div>
+      <button class="btn-add" id="btn-save-settings" style="margin-top:1rem;">
+        <div class="spin" id="cfgspin"></div>
+        <i class="ti ti-device-floppy" id="cfgic"></i>
+        <span id="cfglbl">Save Settings</span>
+      </button>
     </div>
 
     </div>
@@ -458,12 +526,96 @@
     console.error('Persistence error:', err.message);
   });
 
+  // ── SITE CONFIG (editable via Settings tab, stored in Firestore settings/config) ──
+  // Hardcoded values below are fallback defaults used until Firestore config loads,
+  // and as a safety net if the config document doesn't exist yet.
+  let siteConfig = {
+    adminEmail:      'vishalkoolkarni@gmail.com',
+    emailjsService:  'service_x1a9y0w',
+    emailjsPublicKey:'h7gmIkQiNaJvpPUB_',
+    emailjsTplOk:    'template_120snew',
+    emailjsTplRej:   'template_53le5j8',
+    upiId:           '',
+    payeeName:       '',
+    bankDetails:     '',
+    paymentContact:  ''
+  };
+
   // ── EMAILJS ──
-  emailjs.init('h7gmIkQiNaJvpPUB_');
-  const SVC      = 'service_x1a9y0w';
-  const TPL_OK   = 'template_120snew';
-  const TPL_REJ  = 'template_53le5j8';
-  const ADM_MAIL = 'vishalkoolkarni@gmail.com';
+  emailjs.init(siteConfig.emailjsPublicKey);
+
+  async function loadSiteConfig(){
+    try{
+      const snap = await db.collection('settings').doc('config').get();
+      if(snap.exists){
+        const data = snap.data();
+        siteConfig = { ...siteConfig, ...data }; // merge over defaults, keep fallback for any missing field
+        // Re-init EmailJS in case the public key changed
+        if(data.emailjsPublicKey) emailjs.init(data.emailjsPublicKey);
+      }
+    }catch(err){
+      console.error('Could not load site config, using defaults:', err.message);
+    }
+  }
+
+  function populateSettingsForm(){
+    const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v||''; };
+    set('cfg-admin-email',       siteConfig.adminEmail);
+    set('cfg-emailjs-service',   siteConfig.emailjsService);
+    set('cfg-emailjs-publickey', siteConfig.emailjsPublicKey);
+    set('cfg-emailjs-tplok',     siteConfig.emailjsTplOk);
+    set('cfg-emailjs-tplrej',    siteConfig.emailjsTplRej);
+    set('cfg-upi-id',            siteConfig.upiId);
+    set('cfg-payee-name',        siteConfig.payeeName);
+    set('cfg-bank-details',      siteConfig.bankDetails);
+    set('cfg-payment-contact',   siteConfig.paymentContact);
+  }
+
+  async function saveSiteConfig(){
+    const btn=document.getElementById('btn-save-settings');
+    document.getElementById('cfg-err').classList.remove('on');
+    document.getElementById('cfg-ok').classList.remove('on');
+    const newConfig = {
+      adminEmail:       document.getElementById('cfg-admin-email').value.trim(),
+      emailjsService:   document.getElementById('cfg-emailjs-service').value.trim(),
+      emailjsPublicKey: document.getElementById('cfg-emailjs-publickey').value.trim(),
+      emailjsTplOk:     document.getElementById('cfg-emailjs-tplok').value.trim(),
+      emailjsTplRej:    document.getElementById('cfg-emailjs-tplrej').value.trim(),
+      upiId:            document.getElementById('cfg-upi-id').value.trim(),
+      payeeName:        document.getElementById('cfg-payee-name').value.trim(),
+      bankDetails:      document.getElementById('cfg-bank-details').value.trim(),
+      paymentContact:   document.getElementById('cfg-payment-contact').value.trim()
+    };
+    if(!newConfig.adminEmail){
+      document.getElementById('cfg-err-m').textContent='Admin email is required.';
+      document.getElementById('cfg-err').classList.add('on');
+      return;
+    }
+    btn.disabled=true;
+    document.getElementById('cfgspin').style.display='block';
+    document.getElementById('cfgic').style.display='none';
+    document.getElementById('cfglbl').textContent='Saving…';
+    try{
+      await db.collection('settings').doc('config').set({
+        ...newConfig,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+      siteConfig = { ...siteConfig, ...newConfig };
+      emailjs.init(siteConfig.emailjsPublicKey); // re-init with possibly new public key
+      document.getElementById('cfg-ok').classList.add('on');
+      toast('Settings saved.');
+    }catch(err){
+      document.getElementById('cfg-err-m').textContent='Error: '+err.message;
+      document.getElementById('cfg-err').classList.add('on');
+    }finally{
+      btn.disabled=false;
+      document.getElementById('cfgspin').style.display='none';
+      document.getElementById('cfgic').style.display='';
+      document.getElementById('cfglbl').textContent='Save Settings';
+    }
+  }
+
+  document.getElementById('btn-save-settings').addEventListener('click', saveSiteConfig);
 
   // ── HELPERS ──
   function show(id){ document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById(id).classList.add('on'); }
@@ -474,6 +626,12 @@
     document.getElementById('toast-msg').textContent=msg;
     setTimeout(()=>t.classList.remove('on'),3500);
   }
+  function parseLocalDate(dateStr){
+    // Parses "YYYY-MM-DD" as local midnight instead of UTC midnight (avoids timezone slip)
+    const [y,mo,d] = dateStr.split('-').map(Number);
+    return new Date(y, mo-1, d);
+  }
+
   function fmtDate(ts){ return ts?.toDate?ts.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—'; }
 
   // ── AUTH STATE ──
@@ -599,11 +757,17 @@
     document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
     document.getElementById('pnl-docs').classList.add('on');
   });
+  document.getElementById('tab-settings').addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('act')); this.classList.add('act');
+    document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pnl-settings').classList.add('on');
+    populateSettingsForm();
+  });
 
   // ── DATA ──
   let allMembers=[], allDocs=[];
 
-  async function loadAll(){ await Promise.all([loadMembers(), loadDocs()]); }
+  async function loadAll(){ await Promise.all([loadSiteConfig(), loadMembers(), loadDocs()]); }
 
   async function loadMembers(){
     try{
@@ -671,7 +835,7 @@
         <td data-label="Status"><span class="sbdg ${m.status||'pending'}">${cap(m.status||'pending')}</span></td>
         <td data-label="Actions"><div class="abts">
           <button class="abt" onclick="openModal('${m.id}')"><i class="ti ti-eye"></i> View</button>
-          ${m.status!=='approved'?`<button class="abt apr" onclick="doApprove('${m.id}')"><i class="ti ti-check"></i> Approve</button>`:''}
+          ${m.status!=='approved'?((m.paymentDate && m.membershipExpiry && new Date(m.membershipExpiry.seconds*1000) > new Date())?`<button class="abt apr" onclick="doApprove('${m.id}')"><i class="ti ti-check"></i> Approve</button>`:`<button class="abt apr" style="opacity:0.75;" onclick="doApprove('${m.id}')" title="Payment required before approval"><i class="ti ti-currency-rupee"></i> Approve (Payment needed)</button>`):''}
           ${m.status!=='rejected'?`<button class="abt rjt" onclick="doReject('${m.id}')"><i class="ti ti-x"></i> Reject</button>`:''}
           ${m.isAdmin?`<button class="abt" style="border-color:#c8a84b;color:#c8a84b;background:#fffbf0;" onclick="toggleAdmin('${m.id}',false)"><i class="ti ti-shield-off"></i> Remove Admin</button>`:`<button class="abt" style="border-color:#2558a8;color:#2558a8;background:#eaf0f8;" onclick="toggleAdmin('${m.id}',true)"><i class="ti ti-shield-check"></i> Make Admin</button>`}
           <button class="abt" style="border-color:#1a7a4a;color:#1a7a4a;background:#edfaf3;" onclick="openPaymentModal('${m.id}')"><i class="ti ti-cash"></i> Payment</button>
@@ -713,22 +877,39 @@
   // ── APPROVE / REJECT / DELETE ──
   async function doApprove(id){
     const m=allMembers.find(x=>x.id===id);
-    if(!m||!confirm(`Approve ${m.firstName} ${m.lastName}?`)) return;
+    if(!m) return;
+    // Block approval until a valid (non-expired) payment is on record
+    const hasValidPayment = m.paymentDate && m.membershipExpiry &&
+      new Date(m.membershipExpiry.seconds*1000) > new Date();
+    if(!hasValidPayment){
+      const wantsToRecord = confirm(
+        `${m.firstName} ${m.lastName} has no valid payment on record.\n\n`+
+        `Membership cannot be approved until payment is recorded.\n\n`+
+        `Click OK to record their payment now, or Cancel to go back.`
+      );
+      if(wantsToRecord){ openPaymentModal(id); }
+      return;
+    }
+    if(!confirm(`Approve ${m.firstName} ${m.lastName}?`)) return;
     try{
       await db.collection('members').doc(id).update({
         status:'approved',
         approvedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       m.status='approved'; updateStats(); renderMembers(allMembers);
-      await emailjs.send(SVC, TPL_OK,{
+      await emailjs.send(siteConfig.emailjsService, siteConfig.emailjsTplOk,{
+        to_name:`${m.firstName} ${m.lastName}`,
         member_name:`${m.firstName} ${m.lastName}`,
         member_email:m.email, member_plan:m.plan||'',
         status:'Approved',
         message:'Congratulations! Your VNK Classes membership has been approved. You can now sign in and access the full document library.',
-        to_email:m.email, admin_email:ADM_MAIL
+        to_email:m.email, admin_email:siteConfig.adminEmail
       });
       toast('Member approved and notified by email.');
-    } catch(err){ toast('Error: '+err.message,'err'); }
+    } catch(err){
+      const msg = err?.message || err?.text || JSON.stringify(err) || 'Unknown error';
+      toast('Error: '+msg,'err');
+    }
   }
 
   async function doReject(id){
@@ -737,15 +918,19 @@
     try{
       await db.collection('members').doc(id).update({status:'rejected'});
       m.status='rejected'; updateStats(); renderMembers(allMembers);
-      await emailjs.send(SVC, TPL_REJ,{
+      await emailjs.send(siteConfig.emailjsService, siteConfig.emailjsTplRej,{
+        to_name:`${m.firstName} ${m.lastName}`,
         member_name:`${m.firstName} ${m.lastName}`,
         member_email:m.email, member_plan:m.plan||'',
         status:'Rejected',
         message:'We regret to inform you that your VNK Classes membership application has not been approved at this time.',
-        to_email:m.email, admin_email:ADM_MAIL
+        to_email:m.email, admin_email:siteConfig.adminEmail
       });
       toast('Member rejected and notified by email.');
-    } catch(err){ toast('Error: '+err.message,'err'); }
+    } catch(err){
+      const msg = err?.message || err?.text || JSON.stringify(err) || 'Unknown error';
+      toast('Error: '+msg,'err');
+    }
   }
 
   async function doDelete(id){
@@ -855,7 +1040,7 @@
       </div>
       <div class="macts">
         <button class="mbtn save" onclick="saveModal('${m.id}')"><i class="ti ti-device-floppy"></i> Save</button>
-        ${m.status!=='approved'?`<button class="mbtn apr" onclick="doApprove('${m.id}');closeModal()"><i class="ti ti-check"></i> Approve</button>`:''}
+        ${m.status!=='approved'?((m.paymentDate && m.membershipExpiry && new Date(m.membershipExpiry.seconds*1000) > new Date())?`<button class="mbtn apr" onclick="doApprove('${m.id}');closeModal()"><i class="ti ti-check"></i> Approve</button>`:`<button class="mbtn apr" style="opacity:0.75;" onclick="doApprove('${m.id}')" title="Payment required before approval"><i class="ti ti-currency-rupee"></i> Approve (Payment needed)</button>`):''}
         ${m.status!=='rejected'?`<button class="mbtn rjt" onclick="doReject('${m.id}');closeModal()"><i class="ti ti-x"></i> Reject</button>`:''}
         <button class="mbtn del" onclick="doDelete('${m.id}');closeModal()"><i class="ti ti-trash"></i> Delete</button>
       </div>`;
@@ -868,14 +1053,28 @@
 
   async function saveModal(id){
     const m=allMembers.find(x=>x.id===id); if(!m) return;
+    const newStatus = document.getElementById('ed-status').value;
+    // Block saving with status=approved unless a valid payment is on record
+    if(newStatus==='approved' && m.status!=='approved'){
+      const hasValidPayment = m.paymentDate && m.membershipExpiry &&
+        new Date(m.membershipExpiry.seconds*1000) > new Date();
+      if(!hasValidPayment){
+        toast('Cannot approve — no valid payment on record. Use the Payment button to record payment first.','err');
+        document.getElementById('ed-status').value = m.status||'pending'; // revert dropdown
+        return;
+      }
+    }
     try{
       const upd={
         firstName:document.getElementById('ed-fn').value.trim(),
         lastName:document.getElementById('ed-ln').value.trim(),
         plan:document.getElementById('ed-plan').value,
-        status:document.getElementById('ed-status').value,
+        status:newStatus,
         isAdmin:document.getElementById('ed-isadmin').checked
       };
+      if(newStatus==='approved' && m.status!=='approved'){
+        upd.approvedAt = firebase.firestore.FieldValue.serverTimestamp();
+      }
       await db.collection('members').doc(id).update(upd);
       Object.assign(m,upd); updateStats(); renderMembers(allMembers);
       closeModal(); toast('Member details saved.');
@@ -1095,7 +1294,7 @@
     const dateVal = document.getElementById('pay-date').value;
     const duration = parseInt(document.getElementById('pay-duration').value)||12;
     if(!dateVal) return;
-    const expiry = new Date(dateVal);
+    const expiry = parseLocalDate(dateVal);
     expiry.setMonth(expiry.getMonth() + duration);
     document.getElementById('expiry-preview').style.display='block';
     document.getElementById('expiry-preview-val').textContent = expiry.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
@@ -1113,9 +1312,11 @@
     if(!amount){  document.getElementById('pay-err-m').textContent='Please enter payment amount.'; document.getElementById('pay-err').classList.add('on'); return; }
     if(!ref){     document.getElementById('pay-err-m').textContent='Please enter payment reference.'; document.getElementById('pay-err').classList.add('on'); return; }
 
-    const payDate = new Date(dateVal);
-    const expDate = new Date(dateVal);
+    const payDate = parseLocalDate(dateVal);
+    const expDate = parseLocalDate(dateVal);
     expDate.setMonth(expDate.getMonth() + duration);
+    // Push expiry to end of day so same-day approvals never fail the ">now" check
+    expDate.setHours(23,59,59,999);
 
     const btn = document.getElementById('pay-save-btn');
     btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:sp 0.6s linear infinite;display:inline-block"></i> Saving…';
@@ -1139,6 +1340,14 @@
       closePaymentModal();
       renderMembers(allMembers);
       toast('Payment recorded. Expiry: '+expDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}));
+      // If member is still pending, nudge admin to approve now that payment is valid
+      if(m && m.status!=='approved'){
+        setTimeout(()=>{
+          if(confirm(`Payment recorded for ${m.firstName} ${m.lastName}. Approve their membership now?`)){
+            doApprove(id);
+          }
+        }, 300);
+      }
     }catch(err){
       document.getElementById('pay-err-m').textContent='Error: '+err.message;
       document.getElementById('pay-err').classList.add('on');
