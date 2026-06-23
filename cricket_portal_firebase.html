@@ -583,6 +583,34 @@
           </div>
           <div class="msave"><button class="bsave" onclick="saveProfile(this)"><i class="ti ti-device-floppy"></i> Save changes</button></div>
         </div>
+
+        <!-- Change Password -->
+        <div class="sh"><span class="stl">Change Password</span></div>
+        <div class="mic" id="change-pw-section">
+          <div class="mfr2">
+            <div class="mf">
+              <label>Current password</label>
+              <div class="miw"><i class="ti ti-lock"></i><input type="password" id="m-pw-cur" placeholder="Enter current password" /></div>
+            </div>
+            <div class="mf" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="mf">
+                <label>New password</label>
+                <div class="miw"><i class="ti ti-lock"></i><input type="password" id="m-pw-new" placeholder="Min. 6 characters" /></div>
+              </div>
+              <div class="mf">
+                <label>Confirm new password</label>
+                <div class="miw"><i class="ti ti-lock"></i><input type="password" id="m-pw-con" placeholder="Repeat new password" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="ebox" id="pw-err" style="margin-top:0.75rem;"><i class="ti ti-alert-circle"></i><span id="pw-err-m"></span></div>
+          <div class="okbox" id="pw-ok" style="margin-top:0.75rem;"><i class="ti ti-circle-check" style="font-size:18px;flex-shrink:0"></i><span>Password changed successfully!</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:10px;">
+            <button class="lnk" onclick="sendResetEmail()" style="font-size:12px;"><i class="ti ti-mail" style="font-size:11px;margin-right:4px;"></i>Forgot current password? Send reset link</button>
+            <button class="bsave" onclick="changePassword(this)"><i class="ti ti-lock"></i> Update password</button>
+          </div>
+        </div>
+
         <div class="sh"><span class="stl">Your Membership</span></div>
         <div class="tgrid">
           <div class="tcard" id="tier-gold"><div class="tic">🥇</div><div class="tnm">Gold</div><div class="tds">Unlimited · Full library · Priority access</div><div class="tbg" id="tier-gold-badge">Upgrade</div></div>
@@ -1208,6 +1236,69 @@
     document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
     document.getElementById('pnl-'+id).classList.add('on');
   };
+  // ── CHANGE PASSWORD ──
+  window.changePassword=async function(btn){
+    const curPw  = document.getElementById('m-pw-cur').value;
+    const newPw  = document.getElementById('m-pw-new').value;
+    const conPw  = document.getElementById('m-pw-con').value;
+    const errBox = document.getElementById('pw-err');
+    const errMsg = document.getElementById('pw-err-m');
+    const okBox  = document.getElementById('pw-ok');
+    errBox.classList.remove('on'); okBox.classList.remove('on');
+
+    // Validate
+    if(!curPw){ errMsg.textContent='Please enter your current password.'; errBox.classList.add('on'); return; }
+    if(newPw.length < 6){ errMsg.textContent='New password must be at least 6 characters.'; errBox.classList.add('on'); return; }
+    if(newPw !== conPw){ errMsg.textContent="New passwords don't match."; errBox.classList.add('on'); return; }
+    if(newPw === curPw){ errMsg.textContent='New password must be different from current password.'; errBox.classList.add('on'); return; }
+
+    const orig = btn.innerHTML;
+    btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:sp 0.6s linear infinite;display:inline-block"></i> Updating…';
+
+    try{
+      const user = auth.currentUser;
+      // Re-authenticate first (Firebase security requirement)
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, curPw);
+      await user.reauthenticateWithCredential(credential);
+      // Now update password
+      await user.updatePassword(newPw);
+      // Clear fields and show success
+      document.getElementById('m-pw-cur').value='';
+      document.getElementById('m-pw-new').value='';
+      document.getElementById('m-pw-con').value='';
+      okBox.classList.add('on');
+      setTimeout(()=>okBox.classList.remove('on'), 4000);
+    }catch(err){
+      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'){
+        errMsg.textContent='Current password is incorrect.';
+      } else if(err.code==='auth/too-many-requests'){
+        errMsg.textContent='Too many attempts. Please try again later.';
+      } else {
+        errMsg.textContent = err.message||'Something went wrong. Please try again.';
+      }
+      errBox.classList.add('on');
+    }finally{
+      btn.disabled=false; btn.innerHTML=orig;
+    }
+  };
+
+  window.sendResetEmail=async function(){
+    const user = auth.currentUser;
+    if(!user){ return; }
+    try{
+      await auth.sendPasswordResetEmail(user.email);
+      const errBox=document.getElementById('pw-err');
+      const errMsg=document.getElementById('pw-err-m');
+      errBox.style.background='#edfaf3'; errBox.style.borderColor='#6fcf97';
+      errMsg.style.color='#1a6b40';
+      errMsg.textContent='Reset link sent to '+user.email+'. Check your inbox, then log back in.';
+      errBox.classList.add('on');
+      setTimeout(()=>{ errBox.classList.remove('on'); errBox.style.background=''; errBox.style.borderColor=''; errMsg.style.color=''; }, 6000);
+    }catch(err){
+      alert('Could not send reset email: '+err.message);
+    }
+  };
+
   window.showProfile=function(){
     document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('act')); // leave Library tab visually inactive
     document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
