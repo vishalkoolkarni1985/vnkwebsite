@@ -640,6 +640,11 @@
   auth.onAuthStateChanged(async user=>{
     if(user){
       _reloginAttempted = false;
+      // If already verified in this session, skip re-verification and stay in portal
+      if(sessionStorage.getItem('cv_admin_verified')==='true'){
+        show('portal'); loadAll();
+        return;
+      }
       try{
         const snap = await db.collection('members').doc(user.uid).get();
         if(snap.exists && snap.data().isAdmin === true){
@@ -654,8 +659,14 @@
           show('login-page');
         }
       }catch(err){
-        sessionStorage.removeItem('cv_admin_verified');
-        show('login-page');
+        // Firestore read failed — if already verified in session, stay in portal rather than logging out
+        if(sessionStorage.getItem('cv_admin_verified')==='true'){
+          console.warn('Could not re-verify admin, using cached session:', err.message);
+          show('portal'); loadAll();
+        } else {
+          sessionStorage.removeItem('cv_admin_verified');
+          show('login-page');
+        }
       }
     } else {
       // No active Firebase session — likely lost due to file:// storage limits.

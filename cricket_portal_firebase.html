@@ -704,7 +704,9 @@
         showPortal(user,p);
       } else {
         // Not approved yet — sign out and show message
+        justLoggedOut = true; // prevent stale cached session re-firing after this programmatic signOut
         await auth.signOut();
+        setTimeout(()=>{ justLoggedOut = false; }, 3000); // re-enable after enough time for any re-fires to pass
         if(p && p.status==='pending'){
           document.getElementById('lerr-m').textContent='Your membership is pending approval and payment confirmation. You will be notified by email once approved.';
           showLoginPaymentInfo();
@@ -811,7 +813,9 @@
         hideLoginPaymentInfo();
         showPortal(c.user,prof);
       } else {
+        justLoggedOut = true; // prevent stale cached session re-firing after this programmatic signOut
         await auth.signOut();
+        setTimeout(()=>{ justLoggedOut = false; }, 3000);
         if(prof && prof.status==='pending'){
           showE('lerr','lerr-m','Your membership is pending approval and payment confirmation. You will be notified by email once approved.');
           showLoginPaymentInfo();
