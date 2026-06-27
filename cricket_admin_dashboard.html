@@ -297,7 +297,12 @@
   </div>
   <div class="acnt">
     <div class="pnl on" id="pnl-members">
-      <div class="sh"><span class="stl">Member Applications</span><button class="expbtn" id="exportBtn"><i class="ti ti-download"></i> Export CSV</button></div>
+      <div class="sh"><span class="stl">Member Applications</span>
+        <div style="display:flex;gap:8px;">
+          <button class="expbtn" onclick="refreshMembers(this)"><i class="ti ti-refresh" id="refresh-ic"></i> Refresh</button>
+          <button class="expbtn" id="exportBtn"><i class="ti ti-download"></i> Export CSV</button>
+        </div>
+      </div>
       <div class="toolbar">
         <div class="tsrch"><i class="ti ti-search"></i><input type="text" id="msearch" placeholder="Search name, email…" /></div>
         <select class="tsel" id="mstatus"><option value="">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
@@ -779,6 +784,16 @@
   let allMembers=[], allDocs=[];
 
   async function loadAll(){ await Promise.all([loadSiteConfig(), loadMembers(), loadDocs()]); }
+
+  async function refreshMembers(btn){
+    const ic = document.getElementById('refresh-ic');
+    if(ic) ic.style.cssText='animation:sp 0.8s linear infinite;display:inline-block;';
+    if(btn) btn.disabled=true;
+    await loadMembers();
+    if(ic) ic.style.cssText='';
+    if(btn) btn.disabled=false;
+    toast('Member list refreshed.');
+  }
 
   async function loadMembers(){
     try{
@@ -1369,6 +1384,7 @@
 
   // expose to window for dynamic onclick use
   window.doApprove  = doApprove;
+  window.refreshMembers = refreshMembers;
   window.openDocModal = openDocModal;
   window.openPaymentModal = openPaymentModal;
   window.closePaymentModal = closePaymentModal;

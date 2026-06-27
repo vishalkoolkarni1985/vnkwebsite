@@ -611,6 +611,34 @@
           </div>
         </div>
 
+        <!-- Delete Account -->
+        <div class="sh" style="margin-top:1.5rem;"><span class="stl" style="color:#c0392b;">Danger Zone</span></div>
+        <div class="mic" style="border:1.5px solid var(--rbd);background:#fdf8f8;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:500;color:var(--td);margin-bottom:4px;">Delete Account</div>
+              <div style="font-size:12px;color:var(--tx);line-height:1.6;">Permanently deletes your account, profile and membership record. This cannot be undone. You will need to re-apply if you want to rejoin.</div>
+            </div>
+            <button onclick="confirmDeleteAccount()" style="padding:9px 18px;background:#c0392b;border:none;border-radius:var(--r);font-size:13px;font-weight:500;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px;">
+              <i class="ti ti-trash"></i> Delete Account
+            </button>
+          </div>
+          <!-- Password confirmation (hidden until button clicked) -->
+          <div id="delete-confirm-section" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--rbd);">
+            <div style="font-size:13px;color:var(--td);font-weight:500;margin-bottom:0.75rem;">Enter your password to confirm deletion:</div>
+            <div class="miw" style="margin-bottom:0.75rem;"><i class="ti ti-lock"></i><input type="password" id="delete-pw" placeholder="Enter your password" style="width:100%;padding:9px 11px 9px 34px;border:0.5px solid var(--rbd);border-radius:var(--r);font-size:13px;color:var(--td);background:var(--bg);font-family:'DM Sans',sans-serif;" /></div>
+            <div class="ebox" id="delete-err" style="margin-bottom:0.75rem;"><i class="ti ti-alert-circle"></i><span id="delete-err-m"></span></div>
+            <div style="display:flex;gap:10px;">
+              <button onclick="doDeleteAccount(this)" style="padding:9px 18px;background:#c0392b;color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;">
+                <div class="spin" id="delete-spin"></div>
+                <i class="ti ti-trash" id="delete-ic"></i>
+                <span id="delete-lbl">Permanently Delete My Account</span>
+              </button>
+              <button onclick="cancelDeleteAccount()" style="padding:9px 16px;background:none;border:0.5px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--tm);cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+            </div>
+          </div>
+        </div>
+
         <div class="sh"><span class="stl">Your Membership</span></div>
         <div class="tgrid">
           <div class="tcard" id="tier-gold"><div class="tic">🥇</div><div class="tnm">Gold</div><div class="tds">Unlimited · Full library · Priority access</div><div class="tbg" id="tier-gold-badge">Upgrade</div></div>
@@ -1300,6 +1328,71 @@
       setTimeout(()=>{ errBox.classList.remove('on'); errBox.style.background=''; errBox.style.borderColor=''; errMsg.style.color=''; }, 6000);
     }catch(err){
       alert('Could not send reset email: '+err.message);
+    }
+  };
+
+  // ── DELETE ACCOUNT ──
+  window.confirmDeleteAccount = function(){
+    document.getElementById('delete-confirm-section').style.display='block';
+    document.getElementById('delete-pw').focus();
+    document.getElementById('delete-err').classList.remove('on');
+    document.getElementById('delete-pw').value='';
+  };
+
+  window.cancelDeleteAccount = function(){
+    document.getElementById('delete-confirm-section').style.display='none';
+    document.getElementById('delete-pw').value='';
+    document.getElementById('delete-err').classList.remove('on');
+  };
+
+  window.doDeleteAccount = async function(btn){
+    const pw = document.getElementById('delete-pw').value;
+    const errBox = document.getElementById('delete-err');
+    const errMsg = document.getElementById('delete-err-m');
+    errBox.classList.remove('on');
+
+    if(!pw){ errMsg.textContent='Please enter your password to confirm.'; errBox.classList.add('on'); return; }
+
+    const user = auth.currentUser;
+    if(!user) return;
+
+    // Final confirmation
+    if(!confirm('Are you absolutely sure? This will permanently delete your account and all your data. This cannot be undone.')) return;
+
+    btn.disabled=true;
+    document.getElementById('delete-spin').style.display='block';
+    document.getElementById('delete-ic').style.display='none';
+    document.getElementById('delete-lbl').textContent='Deleting…';
+
+    try{
+      // Re-authenticate first
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, pw);
+      await user.reauthenticateWithCredential(credential);
+
+      // Delete Firestore member document
+      await db.collection('members').doc(user.uid).delete();
+
+      // Delete Firebase Auth user
+      await user.delete();
+
+      // Sign out and redirect to login
+      justLoggedOut = true;
+      go('login');
+      alert('Your account has been permanently deleted.');
+    }catch(err){
+      btn.disabled=false;
+      document.getElementById('delete-spin').style.display='none';
+      document.getElementById('delete-ic').style.display='';
+      document.getElementById('delete-lbl').textContent='Permanently Delete My Account';
+
+      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'){
+        errMsg.textContent='Incorrect password. Please try again.';
+      } else if(err.code==='auth/requires-recent-login'){
+        errMsg.textContent='Session expired. Please sign out and sign back in, then try again.';
+      } else {
+        errMsg.textContent = err.message||'Something went wrong. Please try again.';
+      }
+      errBox.classList.add('on');
     }
   };
 
